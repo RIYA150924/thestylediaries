@@ -1,0 +1,1052 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Admin Panel — TheStyleDiaries</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Jost:wght@300;400;500;600&family=Great+Vibes&display=swap" rel="stylesheet"/>
+<style>
+:root{
+  --pink:#f2a7c3;--pink-deep:#c4607a;--pink-soft:#fce8f2;
+  --purple:#9b6db5;--purple-deep:#6b3d8a;
+  --gold:#c9a84c;--gold-light:#f0d080;
+  --dark:#13071c;--dark-mid:#1e0d2c;--dark-light:#2a1040;
+  --green:#4caf82;--red:#c44c4c;--blue:#4c82c4;
+  --white:#fff;--muted:rgba(255,255,255,0.45);
+}
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box;}
+html{scroll-behavior:smooth;}
+body{font-family:'Jost',sans-serif;background:var(--dark);color:var(--white);min-height:100vh;}
+
+/* LOGIN */
+#loginScreen{position:fixed;inset:0;background:var(--dark);z-index:9999;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:0;}
+#loginScreen.hidden{display:none;}
+.login-box{background:var(--dark-mid);border:1px solid rgba(201,168,76,0.2);padding:60px 50px;width:100%;max-width:420px;text-align:center;}
+.login-logo{font-family:'Great Vibes',cursive;font-size:3rem;background:linear-gradient(135deg,var(--gold-light),var(--pink),var(--gold));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;display:block;margin-bottom:6px;}
+.login-sub{font-size:0.58rem;letter-spacing:4px;text-transform:uppercase;color:rgba(255,255,255,0.25);margin-bottom:40px;display:block;}
+.login-label{font-size:0.65rem;text-transform:uppercase;letter-spacing:2px;color:var(--gold);display:block;margin-bottom:8px;text-align:left;}
+.login-input{width:100%;background:rgba(255,255,255,0.04);border:1px solid rgba(201,168,76,0.2);color:white;padding:14px 16px;font-size:0.9rem;font-family:'Jost',sans-serif;outline:none;transition:border-color 0.3s;margin-bottom:20px;}
+.login-input:focus{border-color:var(--pink);}
+.login-btn{width:100%;background:linear-gradient(135deg,var(--pink-deep),var(--purple-deep));color:white;border:none;padding:16px;font-size:0.68rem;text-transform:uppercase;letter-spacing:3px;cursor:pointer;font-family:'Jost',sans-serif;font-weight:700;transition:all 0.3s;margin-top:6px;}
+.login-btn:hover{opacity:0.88;transform:translateY(-1px);}
+.login-error{color:var(--red);font-size:0.75rem;margin-top:12px;display:none;}
+.login-hint{font-size:0.68rem;color:rgba(255,255,255,0.2);margin-top:20px;}
+
+/* LAYOUT */
+.admin-wrap{display:grid;grid-template-columns:260px 1fr;min-height:100vh;}
+
+/* SIDEBAR */
+.sidebar{background:var(--dark-mid);border-right:1px solid rgba(201,168,76,0.1);padding:0;position:sticky;top:0;height:100vh;overflow-y:auto;display:flex;flex-direction:column;}
+.sidebar-brand{padding:28px 24px 20px;border-bottom:1px solid rgba(255,255,255,0.05);}
+.sidebar-logo{font-family:'Great Vibes',cursive;font-size:1.8rem;background:linear-gradient(135deg,var(--gold-light),var(--pink));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;display:block;}
+.sidebar-role{font-size:0.55rem;letter-spacing:3px;text-transform:uppercase;color:rgba(255,255,255,0.2);margin-top:2px;}
+.sidebar-nav{padding:20px 0;flex:1;}
+.nav-section{padding:8px 24px 4px;font-size:0.52rem;text-transform:uppercase;letter-spacing:4px;color:rgba(255,255,255,0.18);font-weight:600;}
+.nav-item{display:flex;align-items:center;gap:12px;padding:12px 24px;cursor:pointer;transition:all 0.2s;font-size:0.8rem;color:rgba(255,255,255,0.45);font-weight:400;border-left:2px solid transparent;}
+.nav-item:hover{background:rgba(255,255,255,0.03);color:rgba(255,255,255,0.75);}
+.nav-item.active{background:rgba(201,168,76,0.06);color:var(--gold-light);border-left-color:var(--gold);}
+.nav-item .ni{font-size:1rem;width:20px;text-align:center;}
+.sidebar-footer{padding:20px 24px;border-top:1px solid rgba(255,255,255,0.05);}
+.sidebar-footer a{font-size:0.68rem;color:rgba(255,255,255,0.25);text-decoration:none;display:flex;align-items:center;gap:8px;transition:color 0.2s;}
+.sidebar-footer a:hover{color:var(--pink);}
+.logout-btn{background:none;border:1px solid rgba(196,96,122,0.2);color:rgba(255,255,255,0.3);padding:8px 16px;font-size:0.62rem;text-transform:uppercase;letter-spacing:2px;cursor:pointer;font-family:'Jost',sans-serif;transition:all 0.2s;margin-top:10px;width:100%;}
+.logout-btn:hover{border-color:var(--red);color:var(--red);}
+
+/* MAIN */
+.main{padding:40px 48px;overflow-y:auto;}
+.page-header{margin-bottom:36px;}
+.page-header h1{font-family:'Cormorant Garamond',serif;font-weight:300;font-size:2.4rem;line-height:1;}
+.page-header h1 em{font-style:italic;background:linear-gradient(135deg,var(--pink),var(--purple));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+.page-header p{font-size:0.8rem;color:rgba(255,255,255,0.3);margin-top:6px;}
+
+/* PANELS */
+.panel{display:none;}
+.panel.active{display:block;}
+
+/* STATS */
+.stats-row{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:36px;}
+.stat-card{background:var(--dark-mid);border:1px solid rgba(255,255,255,0.05);padding:24px;position:relative;overflow:hidden;}
+.stat-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;}
+.stat-card.s-gold::before{background:linear-gradient(90deg,var(--gold),var(--gold-light));}
+.stat-card.s-pink::before{background:linear-gradient(90deg,var(--pink-deep),var(--pink));}
+.stat-card.s-purple::before{background:linear-gradient(90deg,var(--purple-deep),var(--purple));}
+.stat-card.s-green::before{background:linear-gradient(90deg,#2e7d32,var(--green));}
+.stat-num{font-family:'Cormorant Garamond',serif;font-size:2.8rem;font-weight:300;line-height:1;display:block;margin-bottom:4px;}
+.stat-label{font-size:0.62rem;text-transform:uppercase;letter-spacing:2px;color:rgba(255,255,255,0.3);}
+.stat-icon{position:absolute;right:20px;top:20px;font-size:2rem;opacity:0.12;}
+
+/* BUTTONS */
+.btn{display:inline-flex;align-items:center;gap:8px;padding:11px 24px;font-size:0.65rem;text-transform:uppercase;letter-spacing:2px;font-weight:700;cursor:pointer;font-family:'Jost',sans-serif;border:none;transition:all 0.25s;}
+.btn-gold{background:linear-gradient(135deg,var(--gold),#a87830);color:var(--dark);}
+.btn-gold:hover{opacity:0.88;transform:translateY(-1px);}
+.btn-pink{background:linear-gradient(135deg,var(--pink-deep),var(--purple-deep));color:white;}
+.btn-pink:hover{opacity:0.88;transform:translateY(-1px);}
+.btn-outline{background:transparent;border:1px solid rgba(255,255,255,0.12);color:rgba(255,255,255,0.5);}
+.btn-outline:hover{border-color:rgba(255,255,255,0.3);color:white;}
+.btn-red{background:rgba(196,76,76,0.15);border:1px solid rgba(196,76,76,0.25);color:var(--red);}
+.btn-red:hover{background:rgba(196,76,76,0.25);}
+.btn-green{background:rgba(76,175,130,0.15);border:1px solid rgba(76,175,130,0.25);color:var(--green);}
+.btn-green:hover{background:rgba(76,175,130,0.25);}
+.btn-sm{padding:7px 14px;font-size:0.58rem;}
+
+/* TABLE */
+.table-wrap{background:var(--dark-mid);border:1px solid rgba(255,255,255,0.05);overflow:hidden;margin-top:20px;}
+.table-head{padding:16px 24px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid rgba(255,255,255,0.05);}
+.table-head h3{font-size:0.75rem;text-transform:uppercase;letter-spacing:2px;color:rgba(255,255,255,0.4);}
+table{width:100%;border-collapse:collapse;}
+th{font-size:0.58rem;text-transform:uppercase;letter-spacing:3px;color:rgba(255,255,255,0.25);padding:14px 20px;text-align:left;border-bottom:1px solid rgba(255,255,255,0.05);font-weight:600;}
+td{padding:16px 20px;font-size:0.82rem;color:rgba(255,255,255,0.6);border-bottom:1px solid rgba(255,255,255,0.03);vertical-align:middle;}
+tr:last-child td{border-bottom:none;}
+tr:hover td{background:rgba(255,255,255,0.02);}
+.td-title{color:rgba(255,255,255,0.85);font-weight:500;}
+.badge{display:inline-block;font-size:0.55rem;text-transform:uppercase;letter-spacing:1.5px;padding:4px 10px;font-weight:700;}
+.badge-pink{background:rgba(196,96,122,0.18);color:var(--pink);}
+.badge-gold{background:rgba(201,168,76,0.15);color:var(--gold-light);}
+.badge-purple{background:rgba(155,109,181,0.18);color:#c9a0e8;}
+.badge-green{background:rgba(76,175,130,0.15);color:var(--green);}
+.badge-blue{background:rgba(76,130,196,0.15);color:#80b0f0;}
+.badge-grey{background:rgba(255,255,255,0.06);color:rgba(255,255,255,0.3);}
+.actions{display:flex;gap:8px;}
+.empty-state{text-align:center;padding:60px 20px;color:rgba(255,255,255,0.2);}
+.empty-state .es-icon{font-size:3rem;display:block;margin-bottom:12px;}
+.empty-state p{font-size:0.85rem;}
+
+/* FORM */
+.form-wrap{background:var(--dark-mid);border:1px solid rgba(255,255,255,0.05);padding:36px;margin-top:20px;}
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:20px;}
+.form-full{grid-column:1/-1;}
+.form-group{display:flex;flex-direction:column;gap:8px;}
+.form-label{font-size:0.62rem;text-transform:uppercase;letter-spacing:2px;color:var(--gold);font-weight:600;}
+.form-label span{color:rgba(255,255,255,0.2);font-weight:300;text-transform:none;letter-spacing:0;font-size:0.7rem;}
+.form-input,.form-select,.form-textarea{background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.1);color:white;padding:13px 16px;font-size:0.88rem;font-family:'Jost',sans-serif;font-weight:300;outline:none;transition:border-color 0.3s;width:100%;}
+.form-input:focus,.form-select:focus,.form-textarea:focus{border-color:var(--pink);}
+.form-input::placeholder,.form-textarea::placeholder{color:rgba(255,255,255,0.18);}
+.form-select option{background:#1e0d2c;color:white;}
+.form-textarea{min-height:160px;resize:vertical;line-height:1.7;}
+.form-textarea.tall{min-height:340px;}
+.form-hint{font-size:0.68rem;color:rgba(255,255,255,0.22);margin-top:4px;}
+.form-divider{grid-column:1/-1;height:1px;background:rgba(255,255,255,0.05);margin:8px 0;}
+.form-actions{display:flex;gap:12px;margin-top:28px;align-items:center;}
+.form-success{display:none;font-size:0.75rem;color:var(--green);align-items:center;gap:6px;}
+.form-success.show{display:flex;}
+
+/* AFFILIATE PRODUCT FORM */
+.aff-list{display:flex;flex-direction:column;gap:12px;margin-top:12px;}
+.aff-item{background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.07);padding:16px;display:grid;grid-template-columns:1fr 1fr 1fr 1fr auto;gap:12px;align-items:end;}
+.aff-item-label{font-size:0.58rem;text-transform:uppercase;letter-spacing:1.5px;color:rgba(255,255,255,0.3);margin-bottom:4px;}
+.add-aff-btn{display:flex;align-items:center;gap:8px;padding:10px 18px;background:rgba(201,168,76,0.08);border:1px dashed rgba(201,168,76,0.25);color:var(--gold);font-size:0.65rem;text-transform:uppercase;letter-spacing:2px;cursor:pointer;font-family:'Jost',sans-serif;transition:all 0.2s;margin-top:8px;width:100%;justify-content:center;}
+.add-aff-btn:hover{background:rgba(201,168,76,0.13);}
+
+/* ICON PICKER */
+.icon-picker{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px;}
+.icon-opt{width:42px;height:42px;display:flex;align-items:center;justify-content:center;font-size:1.4rem;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.07);cursor:pointer;transition:all 0.2s;}
+.icon-opt:hover,.icon-opt.selected{background:rgba(201,168,76,0.12);border-color:var(--gold);}
+
+/* COLOR PICKER */
+.color-picker{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px;}
+.color-opt{width:40px;height:40px;cursor:pointer;border:2px solid transparent;transition:all 0.2s;}
+.color-opt.selected{border-color:white;transform:scale(1.1);}
+.g-pink{background:linear-gradient(145deg,#f078b0,#b030b8,#7020a8);}
+.g-gold{background:linear-gradient(145deg,#f8e898,#d4a848,#806018);}
+.g-purple{background:linear-gradient(145deg,#e0c8f8,#9858c8,#5020a0);}
+.g-coral{background:linear-gradient(145deg,#ffd8c8,#f0a080,#c06040);}
+.g-lilac{background:linear-gradient(145deg,#f0d8f8,#c080e0,#8040c0);}
+.g-silver{background:linear-gradient(145deg,#e8ecf8,#a8b0d0,#7080a8);}
+.g-rose{background:linear-gradient(145deg,#ffc0d0,#e87090,#b84060);}
+.g-teal{background:linear-gradient(145deg,#c8f0e8,#68c8a8,#308870);}
+
+/* RICH TEXT TOOLBAR */
+.editor-toolbar{display:flex;gap:4px;flex-wrap:wrap;padding:10px;background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.1);border-bottom:none;}
+.tb-btn{background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.07);color:rgba(255,255,255,0.55);padding:6px 12px;font-size:0.72rem;cursor:pointer;font-family:'Jost',sans-serif;transition:all 0.2s;}
+.tb-btn:hover{background:rgba(255,255,255,0.1);color:white;}
+.tb-sep{width:1px;background:rgba(255,255,255,0.08);margin:0 4px;}
+.editor-area{background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.1);color:white;padding:16px;font-size:0.9rem;font-family:'Jost',sans-serif;font-weight:300;outline:none;min-height:320px;resize:vertical;line-height:1.8;width:100%;}
+.editor-area:focus{border-color:var(--pink);}
+
+/* MODAL */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.8);z-index:999;display:none;align-items:center;justify-content:center;padding:20px;}
+.modal-overlay.open{display:flex;}
+.modal{background:var(--dark-mid);border:1px solid rgba(201,168,76,0.2);padding:40px;width:100%;max-width:500px;}
+.modal h2{font-family:'Cormorant Garamond',serif;font-size:1.8rem;margin-bottom:12px;}
+.modal p{font-size:0.85rem;color:var(--muted);margin-bottom:28px;line-height:1.7;}
+.modal-actions{display:flex;gap:12px;}
+
+/* TOAST */
+.toast{position:fixed;bottom:30px;right:30px;z-index:9999;background:var(--dark-light);border:1px solid rgba(201,168,76,0.25);padding:16px 24px;font-size:0.82rem;opacity:0;transform:translateY(20px);transition:all 0.3s;pointer-events:none;max-width:320px;}
+.toast.show{opacity:1;transform:translateY(0);}
+.toast.t-green{border-color:rgba(76,175,130,0.35);color:var(--green);}
+.toast.t-red{border-color:rgba(196,76,76,0.35);color:var(--red);}
+.toast.t-gold{border-color:rgba(201,168,76,0.35);color:var(--gold-light);}
+
+/* SETTINGS */
+.settings-grid{display:grid;grid-template-columns:1fr 1fr;gap:20px;}
+.settings-section{background:var(--dark-mid);border:1px solid rgba(255,255,255,0.05);padding:28px;}
+.settings-section h3{font-size:0.7rem;text-transform:uppercase;letter-spacing:3px;color:var(--gold);margin-bottom:20px;padding-bottom:12px;border-bottom:1px solid rgba(255,255,255,0.05);}
+.settings-section.full{grid-column:1/-1;}
+
+/* PREVIEW CARD */
+.preview-card{background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.06);padding:20px;margin-top:16px;}
+.preview-label{font-size:0.58rem;text-transform:uppercase;letter-spacing:3px;color:rgba(255,255,255,0.2);margin-bottom:12px;}
+.preview-hero{height:100px;display:flex;align-items:center;justify-content:center;font-size:3rem;margin-bottom:12px;}
+.preview-cat{font-size:0.58rem;text-transform:uppercase;letter-spacing:2px;color:var(--pink);margin-bottom:6px;}
+.preview-title{font-family:'Cormorant Garamond',serif;font-size:1.2rem;color:rgba(255,255,255,0.85);margin-bottom:6px;line-height:1.3;}
+.preview-meta{font-size:0.62rem;color:var(--gold);}
+
+/* AFFILIATE MANAGER */
+.aff-manager{background:var(--dark-mid);border:1px solid rgba(255,255,255,0.05);padding:28px;margin-bottom:20px;}
+.aff-manager h3{font-size:0.7rem;text-transform:uppercase;letter-spacing:3px;color:var(--gold);margin-bottom:20px;padding-bottom:12px;border-bottom:1px solid rgba(255,255,255,0.05);}
+.aff-tag-input{background:rgba(255,255,255,0.03);border:1px solid rgba(201,168,76,0.2);color:white;padding:13px 16px;font-size:0.9rem;font-family:'Jost',sans-serif;outline:none;width:100%;margin-bottom:12px;}
+.aff-tag-input:focus{border-color:var(--gold);}
+
+/* SEARCH */
+.search-bar{display:flex;gap:12px;margin-bottom:20px;}
+.search-bar input{flex:1;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);color:white;padding:11px 16px;font-size:0.85rem;font-family:'Jost',sans-serif;outline:none;transition:border-color 0.3s;}
+.search-bar input:focus{border-color:var(--pink);}
+
+/* RESPONSIVE */
+@media(max-width:1100px){.admin-wrap{grid-template-columns:1fr;}.sidebar{display:none;}}
+@media(max-width:700px){.stats-row{grid-template-columns:1fr 1fr;}.form-grid{grid-template-columns:1fr;}.settings-grid{grid-template-columns:1fr;}.aff-item{grid-template-columns:1fr 1fr;}}
+</style>
+</head>
+<body>
+
+<!-- LOGIN -->
+<div id="loginScreen">
+  <div class="login-box">
+    <span class="login-logo">TheStyleDiaries</span>
+    <span class="login-sub">Admin Panel</span>
+    <label class="login-label">Password</label>
+    <input class="login-input" id="pwInput" type="password" placeholder="Enter your admin password" onkeydown="if(event.key==='Enter')doLogin()"/>
+    <button class="login-btn" onclick="doLogin()">✦ &nbsp; Login to Admin</button>
+    <div class="login-error" id="loginError">Wrong password. Try again!</div>
+    <p class="login-hint">Default password: <strong>riya2026</strong> — change it in Settings</p>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<!-- DELETE MODAL -->
+<div class="modal-overlay" id="deleteModal">
+  <div class="modal">
+    <h2>Delete <em style="font-style:italic;color:var(--pink)">Post?</em></h2>
+    <p>This will permanently delete the post. This action cannot be undone.</p>
+    <div class="modal-actions">
+      <button class="btn btn-red" id="confirmDelete">✕ Yes, Delete</button>
+      <button class="btn btn-outline" onclick="closeModal()">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<!-- ADMIN WRAP -->
+<div class="admin-wrap">
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <div class="sidebar-brand">
+      <span class="sidebar-logo">TheStyleDiaries</span>
+      <span class="sidebar-role">Admin Dashboard</span>
+    </div>
+    <nav class="sidebar-nav">
+      <div class="nav-section">Main</div>
+      <div class="nav-item active" onclick="showPanel('dashboard')"><span class="ni">📊</span> Dashboard</div>
+      <div class="nav-item" onclick="showPanel('posts')"><span class="ni">📝</span> All Posts</div>
+      <div class="nav-item" onclick="showPanel('newpost')"><span class="ni">✦</span> New Post</div>
+      <div class="nav-section">Manage</div>
+      <div class="nav-item" onclick="showPanel('categories')"><span class="ni">🗂️</span> Categories</div>
+      <div class="nav-item" onclick="showPanel('affiliate')"><span class="ni">💸</span> Affiliate Links</div>
+      <div class="nav-section">Site</div>
+      <div class="nav-item" onclick="showPanel('settings')"><span class="ni">⚙️</span> Settings</div>
+      <div class="nav-item" onclick="window.open('index.html','_blank')"><span class="ni">🌸</span> View Website</div>
+    </nav>
+    <div class="sidebar-footer">
+      <button class="logout-btn" onclick="doLogout()">✕ Logout</button>
+    </div>
+  </aside>
+
+  <!-- MAIN -->
+  <main class="main">
+
+    <!-- DASHBOARD -->
+    <div id="panel-dashboard" class="panel active">
+      <div class="page-header">
+        <h1>Welcome back, <em>Riya</em> 🌸</h1>
+        <p>Here's your content overview</p>
+      </div>
+      <div class="stats-row" id="dashStats"></div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;">
+        <div>
+          <div class="table-wrap">
+            <div class="table-head"><h3>Recent Posts</h3><button class="btn btn-sm btn-pink" onclick="showPanel('newpost')">+ New Post</button></div>
+            <div id="dashRecentPosts"></div>
+          </div>
+        </div>
+        <div>
+          <div class="table-wrap">
+            <div class="table-head"><h3>Quick Actions</h3></div>
+            <div style="padding:20px;display:flex;flex-direction:column;gap:12px;">
+              <button class="btn btn-pink" onclick="showPanel('newpost')" style="width:100%;justify-content:center;">✦ Write a New Post</button>
+              <button class="btn btn-gold" onclick="showPanel('affiliate')" style="width:100%;justify-content:center;">💸 Manage Affiliate Links</button>
+              <button class="btn btn-outline" onclick="showPanel('categories')" style="width:100%;justify-content:center;">🗂️ Edit Categories</button>
+              <button class="btn btn-outline" onclick="window.open('index.html','_blank')" style="width:100%;justify-content:center;">🌸 View Live Website</button>
+            </div>
+          </div>
+          <div class="table-wrap" style="margin-top:20px;">
+            <div class="table-head"><h3>Money Tips</h3></div>
+            <div style="padding:20px;font-size:0.8rem;color:var(--muted);line-height:1.9;">
+              <p style="margin-bottom:10px;">💰 <strong style="color:var(--gold-light);">Amazon Affiliate:</strong> Add your tag ID in Settings to start earning on every product link.</p>
+              <p style="margin-bottom:10px;">📌 <strong style="color:var(--gold-light);">Pinterest:</strong> Pin every article with a beautiful image. Fashion & beauty do really well there.</p>
+              <p>📧 <strong style="color:var(--gold-light);">Newsletter:</strong> Connect Mailchimp or ConvertKit by adding your form URL in Settings.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ALL POSTS -->
+    <div id="panel-posts" class="panel">
+      <div class="page-header" style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:16px;">
+        <div><h1>All <em>Posts</em></h1><p>Manage and edit your blog content</p></div>
+        <button class="btn btn-pink" onclick="showPanel('newpost')">+ New Post</button>
+      </div>
+      <div class="search-bar">
+        <input type="text" placeholder="Search posts..." id="postSearch" oninput="renderPostsTable()"/>
+      </div>
+      <div class="table-wrap" id="postsTableWrap"></div>
+    </div>
+
+    <!-- NEW / EDIT POST -->
+    <div id="panel-newpost" class="panel">
+      <div class="page-header" style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:16px;">
+        <div><h1 id="postFormTitle">Write a <em>New Post</em></h1><p id="postFormSubtitle">Fill in the details below to publish your article</p></div>
+        <button class="btn btn-outline btn-sm" onclick="showPanel('posts')">← Back to Posts</button>
+      </div>
+
+      <div style="display:grid;grid-template-columns:1fr 340px;gap:24px;">
+        <div>
+          <div class="form-wrap">
+            <input type="hidden" id="editPostId"/>
+            <div class="form-grid">
+              <div class="form-group form-full">
+                <label class="form-label">Post Title <span>*</span></label>
+                <input class="form-input" id="f-title" type="text" placeholder="e.g. My Honest Skincare Routine Under ₹500" oninput="updatePreview()"/>
+              </div>
+              <div class="form-group">
+                <label class="form-label">Category <span>*</span></label>
+                <select class="form-select" id="f-cat" onchange="updatePreview()">
+                  <option value="">Select category...</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label class="form-label">Date</label>
+                <input class="form-input" id="f-date" type="text" placeholder="e.g. March 2026"/>
+              </div>
+              <div class="form-group">
+                <label class="form-label">Read Time</label>
+                <input class="form-input" id="f-readtime" type="text" placeholder="e.g. 5 min read"/>
+              </div>
+              <div class="form-group">
+                <label class="form-label">Short Excerpt <span>(shown on cards)</span></label>
+                <input class="form-input" id="f-excerpt" type="text" placeholder="One-line summary of your post" oninput="updatePreview()"/>
+              </div>
+              <div class="form-divider"></div>
+              <div class="form-group form-full">
+                <label class="form-label">Card Icon</label>
+                <div class="icon-picker" id="iconPicker">
+                  <div class="icon-opt selected" data-icon="🌿" onclick="pickIcon(this)">🌿</div>
+                  <div class="icon-opt" data-icon="💄" onclick="pickIcon(this)">💄</div>
+                  <div class="icon-opt" data-icon="👗" onclick="pickIcon(this)">👗</div>
+                  <div class="icon-opt" data-icon="☀️" onclick="pickIcon(this)">☀️</div>
+                  <div class="icon-opt" data-icon="💅" onclick="pickIcon(this)">💅</div>
+                  <div class="icon-opt" data-icon="🛍️" onclick="pickIcon(this)">🛍️</div>
+                  <div class="icon-opt" data-icon="✨" onclick="pickIcon(this)">✨</div>
+                  <div class="icon-opt" data-icon="💆" onclick="pickIcon(this)">💆</div>
+                  <div class="icon-opt" data-icon="🌸" onclick="pickIcon(this)">🌸</div>
+                  <div class="icon-opt" data-icon="👠" onclick="pickIcon(this)">👠</div>
+                  <div class="icon-opt" data-icon="🧴" onclick="pickIcon(this)">🧴</div>
+                  <div class="icon-opt" data-icon="🪞" onclick="pickIcon(this)">🪞</div>
+                  <div class="icon-opt" data-icon="💋" onclick="pickIcon(this)">💋</div>
+                  <div class="icon-opt" data-icon="🌺" onclick="pickIcon(this)">🌺</div>
+                  <div class="icon-opt" data-icon="🎀" onclick="pickIcon(this)">🎀</div>
+                  <div class="icon-opt" data-icon="💍" onclick="pickIcon(this)">💍</div>
+                </div>
+              </div>
+              <div class="form-group form-full">
+                <label class="form-label">Card Background Colour</label>
+                <div class="color-picker" id="colorPicker">
+                  <div class="color-opt g-pink selected" data-color="g-pink" onclick="pickColor(this)" title="Pink"></div>
+                  <div class="color-opt g-gold" data-color="g-gold" onclick="pickColor(this)" title="Gold"></div>
+                  <div class="color-opt g-purple" data-color="g-purple" onclick="pickColor(this)" title="Purple"></div>
+                  <div class="color-opt g-coral" data-color="g-coral" onclick="pickColor(this)" title="Coral"></div>
+                  <div class="color-opt g-lilac" data-color="g-lilac" onclick="pickColor(this)" title="Lilac"></div>
+                  <div class="color-opt g-silver" data-color="g-silver" onclick="pickColor(this)" title="Silver"></div>
+                  <div class="color-opt g-rose" data-color="g-rose" onclick="pickColor(this)" title="Rose"></div>
+                  <div class="color-opt g-teal" data-color="g-teal" onclick="pickColor(this)" title="Teal"></div>
+                </div>
+              </div>
+              <div class="form-divider"></div>
+              <div class="form-group form-full">
+                <label class="form-label">Article Content <span>(supports basic HTML: &lt;h2&gt;, &lt;h3&gt;, &lt;p&gt;, &lt;strong&gt;, &lt;ul&gt;&lt;li&gt;, &lt;blockquote&gt;)</span></label>
+                <div class="editor-toolbar">
+                  <button class="tb-btn" onclick="insertTag('h2')">H2</button>
+                  <button class="tb-btn" onclick="insertTag('h3')">H3</button>
+                  <div class="tb-sep"></div>
+                  <button class="tb-btn" onclick="insertTag('p')">Para</button>
+                  <button class="tb-btn" onclick="insertInline('strong')"><b>Bold</b></button>
+                  <button class="tb-btn" onclick="insertInline('em')"><i>Italic</i></button>
+                  <div class="tb-sep"></div>
+                  <button class="tb-btn" onclick="insertList()">List</button>
+                  <button class="tb-btn" onclick="insertTag('blockquote')">Quote</button>
+                  <div class="tb-sep"></div>
+                  <button class="tb-btn" onclick="insertAffBox()">💸 Affiliate Box</button>
+                </div>
+                <textarea class="editor-area" id="f-body" placeholder="Write your full article here...
+
+Use:
+&lt;h2&gt;Section Heading&lt;/h2&gt;
+&lt;h3&gt;Sub Heading&lt;/h3&gt;
+&lt;p&gt;Your paragraph text here...&lt;/p&gt;
+&lt;strong&gt;bold text&lt;/strong&gt;
+&lt;ul&gt;&lt;li&gt;List item&lt;/li&gt;&lt;/ul&gt;
+&lt;blockquote&gt;Your quote here&lt;/blockquote&gt;
+
+Click the toolbar buttons above to insert formatting easily!"></textarea>
+                <p class="form-hint">Click toolbar buttons to insert HTML tags automatically. The affiliate box template is pre-filled — just edit the product names and Amazon links.</p>
+              </div>
+              <div class="form-divider"></div>
+              <div class="form-group form-full">
+                <label class="form-label">Affiliate Disclaimer <span>(auto-added to bottom of post)</span></label>
+                <input class="form-input" id="f-disclaimer" type="text" value="This post contains affiliate links. I earn a small commission if you purchase through my links, at no extra cost to you. All opinions are 100% my own."/>
+              </div>
+            </div>
+            <div class="form-actions">
+              <button class="btn btn-pink" onclick="savePost()">✦ &nbsp; Publish Post</button>
+              <button class="btn btn-outline" onclick="saveDraft()">Save as Draft</button>
+              <div class="form-success" id="formSuccess">✓ &nbsp; Saved successfully!</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- PREVIEW -->
+        <div>
+          <div style="position:sticky;top:20px;">
+            <div style="font-size:0.62rem;text-transform:uppercase;letter-spacing:3px;color:rgba(255,255,255,0.25);margin-bottom:12px;">Live Preview</div>
+            <div class="preview-card" id="livePreview">
+              <div class="preview-hero g-pink" id="prev-hero">🌿</div>
+              <div class="preview-cat" id="prev-cat">Category</div>
+              <div class="preview-title" id="prev-title">Your post title will appear here</div>
+              <div class="preview-meta" id="prev-meta">✦ Date · Read time</div>
+            </div>
+            <div style="margin-top:20px;">
+              <div style="font-size:0.62rem;text-transform:uppercase;letter-spacing:3px;color:rgba(255,255,255,0.25);margin-bottom:12px;">Tips for Writing</div>
+              <div style="font-size:0.75rem;color:rgba(255,255,255,0.3);line-height:1.9;">
+                <p style="margin-bottom:8px;">✦ Start with a relatable story or problem</p>
+                <p style="margin-bottom:8px;">✦ Use H2 headings to break up long posts</p>
+                <p style="margin-bottom:8px;">✦ Add affiliate products naturally mid-post</p>
+                <p style="margin-bottom:8px;">✦ End with a personal conclusion</p>
+                <p>✦ Aim for 600–1200 words for best SEO</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- CATEGORIES -->
+    <div id="panel-categories" class="panel">
+      <div class="page-header"><h1>Manage <em>Categories</em></h1><p>Add, edit or remove content categories</p></div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:24px;">
+        <div>
+          <div class="form-wrap">
+            <h3 style="font-size:0.7rem;text-transform:uppercase;letter-spacing:3px;color:var(--gold);margin-bottom:20px;">Add New Category</h3>
+            <div class="form-group" style="margin-bottom:16px;">
+              <label class="form-label">Category Name</label>
+              <input class="form-input" id="c-name" type="text" placeholder="e.g. Nail Art"/>
+            </div>
+            <div class="form-group" style="margin-bottom:16px;">
+              <label class="form-label">Description</label>
+              <input class="form-input" id="c-desc" type="text" placeholder="Short description for this category"/>
+            </div>
+            <div class="form-group" style="margin-bottom:20px;">
+              <label class="form-label">Icon</label>
+              <div class="icon-picker" id="catIconPicker">
+                <div class="icon-opt selected" data-icon="🌸" onclick="pickCatIcon(this)">🌸</div>
+                <div class="icon-opt" data-icon="💄" onclick="pickCatIcon(this)">💄</div>
+                <div class="icon-opt" data-icon="👗" onclick="pickCatIcon(this)">👗</div>
+                <div class="icon-opt" data-icon="🌿" onclick="pickCatIcon(this)">🌿</div>
+                <div class="icon-opt" data-icon="💸" onclick="pickCatIcon(this)">💸</div>
+                <div class="icon-opt" data-icon="⭐" onclick="pickCatIcon(this)">⭐</div>
+                <div class="icon-opt" data-icon="💆" onclick="pickCatIcon(this)">💆</div>
+                <div class="icon-opt" data-icon="✨" onclick="pickCatIcon(this)">✨</div>
+                <div class="icon-opt" data-icon="👠" onclick="pickCatIcon(this)">👠</div>
+                <div class="icon-opt" data-icon="🎀" onclick="pickCatIcon(this)">🎀</div>
+              </div>
+            </div>
+            <button class="btn btn-pink" onclick="addCategory()">+ Add Category</button>
+          </div>
+        </div>
+        <div>
+          <div class="table-wrap"><div class="table-head"><h3>All Categories</h3></div><div id="categoriesTable"></div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- AFFILIATE LINKS -->
+    <div id="panel-affiliate" class="panel">
+      <div class="page-header"><h1>Affiliate <em>Links</em></h1><p>Manage your Amazon tag and affiliate settings</p></div>
+      <div class="aff-manager">
+        <h3>Amazon Associates Settings</h3>
+        <div class="form-group" style="margin-bottom:16px;">
+          <label class="form-label">Your Amazon Affiliate Tag ID</label>
+          <input class="aff-tag-input" id="affTag" type="text" placeholder="e.g. yourtag-21" oninput="saveAffTag()"/>
+          <p class="form-hint" style="margin-top:8px;">Get your tag at <strong style="color:var(--gold)">affiliate-program.amazon.in</strong> — replace YOURTAG-21 in all product links with this tag to earn commission.</p>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Newsletter Form URL <span>(optional — Mailchimp/ConvertKit embed URL)</span></label>
+          <input class="aff-tag-input" id="nlUrl" type="text" placeholder="https://mailchimp.com/your-form-url"/>
+          <p class="form-hint" style="margin-top:8px;">Paste your Mailchimp or ConvertKit form URL here to connect your email list.</p>
+        </div>
+      </div>
+      <div class="aff-manager">
+        <h3>Your Saved Affiliate Products</h3>
+        <p style="font-size:0.8rem;color:var(--muted);margin-bottom:20px;">Save your most-used products here so you can quickly copy-paste them into new posts.</p>
+        <div id="affProductsTable"></div>
+        <div style="margin-top:20px;" id="addAffProductForm">
+          <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr auto;gap:12px;align-items:end;background:rgba(255,255,255,0.02);padding:16px;border:1px dashed rgba(255,255,255,0.08);">
+            <div><div class="aff-item-label">Product Name</div><input class="form-input" id="aff-pname" placeholder="e.g. Cetaphil Cleanser"/></div>
+            <div><div class="aff-item-label">Price</div><input class="form-input" id="aff-pprice" placeholder="₹340"/></div>
+            <div><div class="aff-item-label">Amazon URL</div><input class="form-input" id="aff-purl" placeholder="https://amazon.in/..."/></div>
+            <div><div class="aff-item-label">Icon</div><input class="form-input" id="aff-picon" placeholder="🧴"/></div>
+            <button class="btn btn-gold" onclick="addAffProduct()" style="white-space:nowrap">+ Add</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SETTINGS -->
+    <div id="panel-settings" class="panel">
+      <div class="page-header"><h1>Site <em>Settings</em></h1><p>Customise your website and admin panel</p></div>
+      <div class="settings-grid">
+        <div class="settings-section">
+          <h3>Blog Settings</h3>
+          <div class="form-group" style="margin-bottom:16px;">
+            <label class="form-label">Blog Name</label>
+            <input class="form-input" id="s-blogname" value="TheStyleDiaries"/>
+          </div>
+          <div class="form-group" style="margin-bottom:16px;">
+            <label class="form-label">Tagline</label>
+            <input class="form-input" id="s-tagline" value="Style · Beauty · Life"/>
+          </div>
+          <div class="form-group" style="margin-bottom:20px;">
+            <label class="form-label">Author Name</label>
+            <input class="form-input" id="s-author" value="Riya"/>
+          </div>
+          <button class="btn btn-pink" onclick="saveSettings()">Save Settings</button>
+        </div>
+        <div class="settings-section">
+          <h3>Change Admin Password</h3>
+          <div class="form-group" style="margin-bottom:16px;">
+            <label class="form-label">Current Password</label>
+            <input class="form-input" id="pw-current" type="password" placeholder="Enter current password"/>
+          </div>
+          <div class="form-group" style="margin-bottom:16px;">
+            <label class="form-label">New Password</label>
+            <input class="form-input" id="pw-new" type="password" placeholder="Enter new password"/>
+          </div>
+          <div class="form-group" style="margin-bottom:20px;">
+            <label class="form-label">Confirm New Password</label>
+            <input class="form-input" id="pw-confirm" type="password" placeholder="Repeat new password"/>
+          </div>
+          <button class="btn btn-outline" onclick="changePassword()">Update Password</button>
+        </div>
+        <div class="settings-section full">
+          <h3>Export / Backup</h3>
+          <p style="font-size:0.82rem;color:var(--muted);margin-bottom:20px;line-height:1.8;">Download all your posts as a JSON backup file. Keep this safe — you can restore from it if anything goes wrong.</p>
+          <div style="display:flex;gap:12px;flex-wrap:wrap;">
+            <button class="btn btn-gold" onclick="exportData()">⬇ Export All Posts (JSON)</button>
+            <label class="btn btn-outline" style="cursor:pointer;">⬆ Import Posts (JSON)<input type="file" accept=".json" style="display:none;" onchange="importData(event)"/></label>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<script>
+// ════════ STORAGE HELPERS ════════
+const STORAGE_KEY = 'tsd_posts';
+const CATS_KEY = 'tsd_cats';
+const SETTINGS_KEY = 'tsd_settings';
+const AFF_KEY = 'tsd_aff';
+const AFF_PRODS_KEY = 'tsd_aff_prods';
+const PW_KEY = 'tsd_pw';
+
+function getPosts(){try{return JSON.parse(localStorage.getItem(STORAGE_KEY)||'[]');}catch{return[];}}
+function savePosts(arr){localStorage.setItem(STORAGE_KEY,JSON.stringify(arr));}
+function getCats(){
+  const def=[
+    {id:'skincare',name:'Skincare',icon:'🌿',desc:'Honest skincare advice for real Indian skin.'},
+    {id:'fashion',name:'Fashion',icon:'👗',desc:'Style guides and budget fashion finds.'},
+    {id:'makeup',name:'Makeup',icon:'💄',desc:'Tutorials, dupes, and honest reviews.'},
+    {id:'haircare',name:'Hair Care',icon:'💆',desc:'Everything for healthy, glossy hair.'},
+    {id:'budget',name:'Budget Finds',icon:'💸',desc:'Monthly hauls and affordable picks.'},
+    {id:'reviews',name:'Reviews',icon:'⭐',desc:'100% honest product reviews.'},
+    {id:'lifestyle',name:'Lifestyle',icon:'🌸',desc:'Real life content and wellness.'},
+  ];
+  try{return JSON.parse(localStorage.getItem(CATS_KEY)||JSON.stringify(def));}catch{return def;}
+}
+function saveCats(arr){localStorage.setItem(CATS_KEY,JSON.stringify(arr));}
+function getSettings(){try{return JSON.parse(localStorage.getItem(SETTINGS_KEY)||'{}');}catch{return {};}}
+function saveSettingsObj(obj){localStorage.setItem(SETTINGS_KEY,JSON.stringify(obj));}
+function getAffTag(){return localStorage.getItem(AFF_KEY)||'';}
+function getAffProds(){try{return JSON.parse(localStorage.getItem(AFF_PRODS_KEY)||'[]');}catch{return[];}}
+function saveAffProds(arr){localStorage.setItem(AFF_PRODS_KEY,JSON.stringify(arr));}
+function getPassword(){return localStorage.getItem(PW_KEY)||'riya2026';}
+
+// ════════ LOGIN ════════
+function doLogin(){
+  const v=document.getElementById('pwInput').value;
+  if(v===getPassword()){
+    document.getElementById('loginScreen').classList.add('hidden');
+    initAdmin();
+  } else {
+    document.getElementById('loginError').style.display='block';
+    document.getElementById('pwInput').value='';
+  }
+}
+function doLogout(){
+  document.getElementById('loginScreen').classList.remove('hidden');
+  document.getElementById('pwInput').value='';
+  document.getElementById('loginError').style.display='none';
+}
+
+// ════════ PANEL NAV ════════
+function showPanel(name){
+  document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
+  document.getElementById('panel-'+name).classList.add('active');
+  document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
+  const map={dashboard:0,posts:1,newpost:2,categories:3,affiliate:4,settings:5};
+  const items=document.querySelectorAll('.nav-item');
+  if(map[name]!==undefined)items[map[name]].classList.add('active');
+  window.scrollTo({top:0,behavior:'smooth'});
+  if(name==='dashboard')renderDashboard();
+  if(name==='posts')renderPostsTable();
+  if(name==='newpost')initNewPost();
+  if(name==='categories')renderCategories();
+  if(name==='affiliate')renderAffiliate();
+  if(name==='settings')renderSettings();
+}
+
+// ════════ TOAST ════════
+function toast(msg,type='gold'){
+  const t=document.getElementById('toast');
+  t.textContent=msg;t.className='toast t-'+type+' show';
+  clearTimeout(t._tm);
+  t._tm=setTimeout(()=>t.classList.remove('show'),3000);
+}
+
+// ════════ DASHBOARD ════════
+function renderDashboard(){
+  const posts=getPosts();
+  const pub=posts.filter(p=>p.status==='published');
+  const drafts=posts.filter(p=>p.status==='draft');
+  const cats=getCats();
+  document.getElementById('dashStats').innerHTML=`
+    <div class="stat-card s-gold"><span class="stat-num">${posts.length}</span><span class="stat-label">Total Posts</span><span class="stat-icon">📝</span></div>
+    <div class="stat-card s-pink"><span class="stat-num">${pub.length}</span><span class="stat-label">Published</span><span class="stat-icon">✦</span></div>
+    <div class="stat-card s-purple"><span class="stat-num">${drafts.length}</span><span class="stat-label">Drafts</span><span class="stat-icon">📋</span></div>
+    <div class="stat-card s-green"><span class="stat-num">${cats.length}</span><span class="stat-label">Categories</span><span class="stat-icon">🗂️</span></div>
+  `;
+  const recent=posts.slice(-5).reverse();
+  document.getElementById('dashRecentPosts').innerHTML=recent.length?`
+    <table><thead><tr><th>Title</th><th>Category</th><th>Status</th></tr></thead><tbody>
+    ${recent.map(p=>`<tr onclick="editPost('${p.id}')" style="cursor:pointer;"><td class="td-title">${p.title||'Untitled'}</td><td><span class="badge badge-pink">${p.cat||'—'}</span></td><td><span class="badge ${p.status==='published'?'badge-green':'badge-grey'}">${p.status||'draft'}</span></td></tr>`).join('')}
+    </tbody></table>
+  `:`<div class="empty-state"><span class="es-icon">📝</span><p>No posts yet. Write your first post!</p></div>`;
+}
+
+// ════════ POSTS TABLE ════════
+function renderPostsTable(){
+  const q=(document.getElementById('postSearch')||{}).value||'';
+  let posts=getPosts().filter(p=>!q||(p.title||'').toLowerCase().includes(q.toLowerCase())||(p.cat||'').toLowerCase().includes(q.toLowerCase()));
+  posts=[...posts].reverse();
+  document.getElementById('postsTableWrap').innerHTML=posts.length?`
+    <table>
+      <thead><tr><th>Title</th><th>Category</th><th>Date</th><th>Status</th><th>Actions</th></tr></thead>
+      <tbody>
+        ${posts.map(p=>`
+          <tr>
+            <td class="td-title">${p.icon||''} ${p.title||'Untitled'}</td>
+            <td><span class="badge badge-pink">${p.cat||'—'}</span></td>
+            <td style="font-size:0.75rem;color:rgba(255,255,255,0.3);">${p.date||'—'}</td>
+            <td><span class="badge ${p.status==='published'?'badge-green':'badge-grey'}">${p.status||'draft'}</span></td>
+            <td>
+              <div class="actions">
+                <button class="btn btn-sm btn-outline" onclick="editPost('${p.id}')">✏️ Edit</button>
+                <button class="btn btn-sm ${p.status==='published'?'btn-outline':'btn-green'}" onclick="toggleStatus('${p.id}')">${p.status==='published'?'⬇ Unpublish':'✦ Publish'}</button>
+                <button class="btn btn-sm btn-red" onclick="confirmDeletePost('${p.id}')">✕</button>
+              </div>
+            </td>
+          </tr>
+        `).join('')}
+      </tbody>
+    </table>
+  `:`<div class="empty-state"><span class="es-icon">📝</span><p>No posts yet. <span style="color:var(--pink);cursor:pointer;" onclick="showPanel('newpost')">Write your first one!</span></p></div>`;
+}
+
+// ════════ NEW / EDIT POST ════════
+function initNewPost(){
+  document.getElementById('editPostId').value='';
+  document.getElementById('postFormTitle').innerHTML='Write a <em>New Post</em>';
+  document.getElementById('postFormSubtitle').textContent='Fill in the details below to publish your article';
+  document.getElementById('f-title').value='';
+  document.getElementById('f-excerpt').value='';
+  document.getElementById('f-body').value='';
+  document.getElementById('f-date').value=new Date().toLocaleDateString('en-IN',{month:'long',year:'numeric'});
+  document.getElementById('f-readtime').value='5 min read';
+  document.getElementById('f-disclaimer').value='This post contains affiliate links. I earn a small commission if you purchase through my links, at no extra cost to you. All opinions are 100% my own.';
+  document.getElementById('formSuccess').classList.remove('show');
+  pickColorByValue('g-pink');
+  pickIconByValue('🌿');
+  populateCatDropdown('');
+  updatePreview();
+}
+function editPost(id){
+  const posts=getPosts();
+  const p=posts.find(x=>x.id===id);
+  if(!p)return;
+  showPanel('newpost');
+  setTimeout(()=>{
+    document.getElementById('editPostId').value=id;
+    document.getElementById('postFormTitle').innerHTML='Edit <em>Post</em>';
+    document.getElementById('postFormSubtitle').textContent='Update your article content';
+    document.getElementById('f-title').value=p.title||'';
+    document.getElementById('f-excerpt').value=p.excerpt||'';
+    document.getElementById('f-body').value=p.body||'';
+    document.getElementById('f-date').value=p.date||'';
+    document.getElementById('f-readtime').value=p.readTime||'';
+    document.getElementById('f-disclaimer').value=p.disclaimer||'';
+    populateCatDropdown(p.catKey||'');
+    pickColorByValue(p.bg||'g-pink');
+    pickIconByValue(p.icon||'🌿');
+    updatePreview();
+  },100);
+}
+function populateCatDropdown(selected){
+  const cats=getCats();
+  const el=document.getElementById('f-cat');
+  el.innerHTML='<option value="">Select category...</option>'+cats.map(c=>`<option value="${c.id}" ${c.id===selected?'selected':''}>${c.icon} ${c.name}</option>`).join('');
+}
+function generateId(){return 'post-'+Date.now()+'-'+Math.random().toString(36).substr(2,6);}
+function savePost(isDraft){
+  const id=document.getElementById('editPostId').value||generateId();
+  const title=document.getElementById('f-title').value.trim();
+  const catEl=document.getElementById('f-cat');
+  const catKey=catEl.value;
+  const cat=catEl.options[catEl.selectedIndex]?catEl.options[catEl.selectedIndex].text.replace(/^.+\s/,'').trim():'';
+  const excerpt=document.getElementById('f-excerpt').value.trim();
+  const body=document.getElementById('f-body').value.trim();
+  const date=document.getElementById('f-date').value.trim();
+  const readTime=document.getElementById('f-readtime').value.trim();
+  const disclaimer=document.getElementById('f-disclaimer').value.trim();
+  const icon=document.querySelector('#iconPicker .selected')?.dataset.icon||'🌿';
+  const bg=document.querySelector('#colorPicker .selected')?.dataset.color||'g-pink';
+  if(!title){toast('Please add a post title!','red');return;}
+  if(!catKey){toast('Please select a category!','red');return;}
+  if(!body&&!isDraft){toast('Please add some content!','red');return;}
+  const posts=getPosts();
+  const existing=posts.findIndex(x=>x.id===id);
+  const post={id,title,catKey,cat,excerpt,body,date,readTime,disclaimer,icon,bg,status:isDraft?'draft':'published',updatedAt:new Date().toISOString()};
+  if(!isDraft&&!post.createdAt)post.createdAt=new Date().toISOString();
+  if(existing>=0){posts[existing]={...posts[existing],...post};}
+  else{post.createdAt=new Date().toISOString();posts.push(post);}
+  savePosts(posts);
+  document.getElementById('formSuccess').classList.add('show');
+  toast(isDraft?'Draft saved!':'Post published! ✦','green');
+  setTimeout(()=>{document.getElementById('formSuccess').classList.remove('show');},3000);
+  // Export updated posts to be read by index.html
+  syncToWebsite(posts);
+}
+function saveDraft(){savePost(true);}
+
+// ════════ SYNC TO WEBSITE ════════
+function syncToWebsite(posts){
+  // Store all posts so index.html can read them
+  localStorage.setItem('tsd_published_posts',JSON.stringify(posts));
+}
+
+// ════════ TOGGLE STATUS ════════
+function toggleStatus(id){
+  const posts=getPosts();
+  const p=posts.find(x=>x.id===id);
+  if(!p)return;
+  p.status=p.status==='published'?'draft':'published';
+  savePosts(posts);
+  syncToWebsite(posts);
+  renderPostsTable();
+  toast(p.status==='published'?'Post published! ✦':'Post unpublished.','gold');
+}
+
+// ════════ DELETE ════════
+let pendingDeleteId=null;
+function confirmDeletePost(id){
+  pendingDeleteId=id;
+  document.getElementById('deleteModal').classList.add('open');
+  document.getElementById('confirmDelete').onclick=function(){
+    const posts=getPosts().filter(p=>p.id!==pendingDeleteId);
+    savePosts(posts);
+    syncToWebsite(posts);
+    closeModal();
+    renderPostsTable();
+    toast('Post deleted.','red');
+  };
+}
+function closeModal(){document.getElementById('deleteModal').classList.remove('open');pendingDeleteId=null;}
+
+// ════════ ICON / COLOR PICKERS ════════
+function pickIcon(el){
+  document.querySelectorAll('#iconPicker .icon-opt').forEach(x=>x.classList.remove('selected'));
+  el.classList.add('selected');
+  updatePreview();
+}
+function pickColor(el){
+  document.querySelectorAll('#colorPicker .color-opt').forEach(x=>x.classList.remove('selected'));
+  el.classList.add('selected');
+  updatePreview();
+}
+function pickIconByValue(v){
+  document.querySelectorAll('#iconPicker .icon-opt').forEach(x=>{
+    x.classList.toggle('selected',x.dataset.icon===v);
+  });
+}
+function pickColorByValue(v){
+  document.querySelectorAll('#colorPicker .color-opt').forEach(x=>{
+    x.classList.toggle('selected',x.dataset.color===v);
+  });
+}
+function pickCatIcon(el){
+  document.querySelectorAll('#catIconPicker .icon-opt').forEach(x=>x.classList.remove('selected'));
+  el.classList.add('selected');
+}
+
+// ════════ LIVE PREVIEW ════════
+function updatePreview(){
+  const title=document.getElementById('f-title').value||'Your post title will appear here';
+  const catEl=document.getElementById('f-cat');
+  const cat=catEl.options[catEl.selectedIndex]?catEl.options[catEl.selectedIndex].text:'Category';
+  const date=document.getElementById('f-date').value||'Date';
+  const rt=document.getElementById('f-readtime').value||'Read time';
+  const icon=document.querySelector('#iconPicker .selected')?.dataset.icon||'🌿';
+  const bg=document.querySelector('#colorPicker .selected')?.dataset.color||'g-pink';
+  document.getElementById('prev-hero').className='preview-hero '+bg;
+  document.getElementById('prev-hero').textContent=icon;
+  document.getElementById('prev-cat').textContent=cat;
+  document.getElementById('prev-title').textContent=title;
+  document.getElementById('prev-meta').textContent='✦ '+date+' · '+rt;
+}
+
+// ════════ EDITOR TOOLBAR ════════
+function insertTag(tag){
+  const ta=document.getElementById('f-body');
+  const s=ta.selectionStart,e=ta.selectionEnd;
+  const sel=ta.value.substring(s,e)||'Your text here';
+  const ins=`\n<${tag}>${sel}</${tag}>\n`;
+  ta.value=ta.value.substring(0,s)+ins+ta.value.substring(e);
+  ta.focus();
+}
+function insertInline(tag){
+  const ta=document.getElementById('f-body');
+  const s=ta.selectionStart,e=ta.selectionEnd;
+  const sel=ta.value.substring(s,e)||'text';
+  const ins=`<${tag}>${sel}</${tag}>`;
+  ta.value=ta.value.substring(0,s)+ins+ta.value.substring(e);
+  ta.focus();
+}
+function insertList(){
+  const ta=document.getElementById('f-body');
+  const s=ta.selectionStart;
+  const ins=`\n<ul>\n  <li>First item</li>\n  <li>Second item</li>\n  <li>Third item</li>\n</ul>\n`;
+  ta.value=ta.value.substring(0,s)+ins+ta.value.substring(s);
+  ta.focus();
+}
+function insertAffBox(){
+  const tag=getAffTag()||'YOURTAG-21';
+  const ta=document.getElementById('f-body');
+  const s=ta.selectionStart;
+  const ins=`
+<div class="affiliate-box">
+  <h4>✦ Shop My Picks</h4>
+  <p>Products I personally recommend and use.</p>
+  <div class="affiliate-box-products">
+    <a class="aff-product" href="https://www.amazon.in/s?k=YOUR+PRODUCT+SEARCH&tag=${tag}" target="_blank" rel="noopener">
+      <div class="aff-product-icon">🛍️</div>
+      <div class="aff-product-info">
+        <div class="aff-product-name">Product Name Here</div>
+        <div class="aff-product-price">₹XXX <span class="aff-product-badge">My Pick</span></div>
+      </div>
+      <button class="aff-product-buy">Shop on Amazon →</button>
+    </a>
+  </div>
+</div>`;
+  ta.value=ta.value.substring(0,s)+ins+ta.value.substring(s);
+  ta.focus();
+  toast('Affiliate box inserted! Edit the product name and price.','gold');
+}
+
+// ════════ CATEGORIES ════════
+function renderCategories(){
+  populateCatDropdown(document.getElementById('f-cat')?.value||'');
+  const cats=getCats();
+  document.getElementById('categoriesTable').innerHTML=cats.length?`
+    <table>
+      <thead><tr><th>Icon</th><th>Name</th><th>Description</th><th></th></tr></thead>
+      <tbody>
+        ${cats.map(c=>`
+          <tr>
+            <td style="font-size:1.5rem;">${c.icon}</td>
+            <td class="td-title">${c.name}</td>
+            <td style="font-size:0.78rem;color:rgba(255,255,255,0.3);">${c.desc||'—'}</td>
+            <td><button class="btn btn-sm btn-red" onclick="deleteCategory('${c.id}')">✕</button></td>
+          </tr>
+        `).join('')}
+      </tbody>
+    </table>
+  `:`<div class="empty-state"><span class="es-icon">🗂️</span><p>No categories yet.</p></div>`;
+}
+function addCategory(){
+  const name=document.getElementById('c-name').value.trim();
+  const desc=document.getElementById('c-desc').value.trim();
+  const icon=document.querySelector('#catIconPicker .selected')?.dataset.icon||'🌸';
+  if(!name){toast('Enter a category name!','red');return;}
+  const id=name.toLowerCase().replace(/\s+/g,'-').replace(/[^a-z0-9-]/g,'');
+  const cats=getCats();
+  if(cats.find(c=>c.id===id)){toast('Category already exists!','red');return;}
+  cats.push({id,name,icon,desc});
+  saveCats(cats);
+  renderCategories();
+  document.getElementById('c-name').value='';
+  document.getElementById('c-desc').value='';
+  toast('Category added! ✦','green');
+}
+function deleteCategory(id){
+  const cats=getCats().filter(c=>c.id!==id);
+  saveCats(cats);
+  renderCategories();
+  toast('Category removed.','red');
+}
+
+// ════════ AFFILIATE ════════
+function renderAffiliate(){
+  document.getElementById('affTag').value=getAffTag();
+  document.getElementById('nlUrl').value=localStorage.getItem('tsd_nl_url')||'';
+  renderAffProducts();
+}
+function saveAffTag(){
+  localStorage.setItem(AFF_KEY,document.getElementById('affTag').value.trim());
+  toast('Affiliate tag saved!','gold');
+}
+document.addEventListener('DOMContentLoaded',()=>{
+  const nlEl=document.getElementById('nlUrl');
+  if(nlEl)nlEl.addEventListener('change',()=>{localStorage.setItem('tsd_nl_url',nlEl.value.trim());toast('Newsletter URL saved!','gold');});
+});
+function addAffProduct(){
+  const name=document.getElementById('aff-pname').value.trim();
+  const price=document.getElementById('aff-pprice').value.trim();
+  const url=document.getElementById('aff-purl').value.trim();
+  const icon=document.getElementById('aff-picon').value.trim()||'🛍️';
+  if(!name||!url){toast('Enter product name and URL!','red');return;}
+  const prods=getAffProds();
+  prods.push({id:'aff-'+Date.now(),name,price,url,icon});
+  saveAffProds(prods);
+  renderAffProducts();
+  ['aff-pname','aff-pprice','aff-purl','aff-picon'].forEach(id=>document.getElementById(id).value='');
+  toast('Product saved!','green');
+}
+function renderAffProducts(){
+  const prods=getAffProds();
+  document.getElementById('affProductsTable').innerHTML=prods.length?`
+    <table>
+      <thead><tr><th>Icon</th><th>Product</th><th>Price</th><th>URL</th><th></th></tr></thead>
+      <tbody>
+        ${prods.map(p=>`
+          <tr>
+            <td style="font-size:1.5rem;">${p.icon}</td>
+            <td class="td-title">${p.name}</td>
+            <td style="color:var(--gold);">${p.price||'—'}</td>
+            <td style="font-size:0.72rem;color:rgba(255,255,255,0.25);max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${p.url}</td>
+            <td><button class="btn btn-sm btn-red" onclick="deleteAffProduct('${p.id}')">✕</button></td>
+          </tr>
+        `).join('')}
+      </tbody>
+    </table>
+  `:`<div class="empty-state" style="padding:30px;"><p>No products saved yet. Add your first one below.</p></div>`;
+}
+function deleteAffProduct(id){
+  saveAffProds(getAffProds().filter(p=>p.id!==id));
+  renderAffProducts();
+  toast('Product removed.','red');
+}
+
+// ════════ SETTINGS ════════
+function renderSettings(){
+  const s=getSettings();
+  document.getElementById('s-blogname').value=s.blogName||'TheStyleDiaries';
+  document.getElementById('s-tagline').value=s.tagline||'Style · Beauty · Life';
+  document.getElementById('s-author').value=s.author||'Riya';
+}
+function saveSettings(){
+  const s={blogName:document.getElementById('s-blogname').value,tagline:document.getElementById('s-tagline').value,author:document.getElementById('s-author').value};
+  saveSettingsObj(s);
+  toast('Settings saved! ✦','green');
+}
+function changePassword(){
+  const cur=document.getElementById('pw-current').value;
+  const nw=document.getElementById('pw-new').value;
+  const conf=document.getElementById('pw-confirm').value;
+  if(cur!==getPassword()){toast('Current password is wrong!','red');return;}
+  if(nw.length<6){toast('New password must be at least 6 characters.','red');return;}
+  if(nw!==conf){toast('Passwords don\'t match!','red');return;}
+  localStorage.setItem(PW_KEY,nw);
+  document.getElementById('pw-current').value='';
+  document.getElementById('pw-new').value='';
+  document.getElementById('pw-confirm').value='';
+  toast('Password updated! ✦','green');
+}
+
+// ════════ EXPORT / IMPORT ════════
+function exportData(){
+  const data={posts:getPosts(),cats:getCats(),settings:getSettings(),affProds:getAffProds(),exportedAt:new Date().toISOString()};
+  const blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'});
+  const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='thestylediaries-backup-'+Date.now()+'.json';a.click();
+  toast('Backup downloaded! Keep it safe. ✦','green');
+}
+function importData(e){
+  const file=e.target.files[0];if(!file)return;
+  const r=new FileReader();
+  r.onload=function(ev){
+    try{
+      const d=JSON.parse(ev.target.result);
+      if(d.posts)savePosts(d.posts);
+      if(d.cats)saveCats(d.cats);
+      if(d.settings)saveSettingsObj(d.settings);
+      if(d.affProds)saveAffProds(d.affProds);
+      if(d.posts)syncToWebsite(d.posts);
+      toast('Import successful! ✦','green');
+      renderDashboard();
+    }catch{toast('Invalid backup file!','red');}
+  };
+  r.readAsText(file);
+}
+
+// ════════ INIT ════════
+function initAdmin(){
+  renderDashboard();
+  populateCatDropdown('');
+  updatePreview();
+}
+// Keyboard shortcut
+document.addEventListener('keydown',e=>{if(e.key==='Enter'&&document.getElementById('loginScreen')&&!document.getElementById('loginScreen').classList.contains('hidden'))doLogin();});
+</script>
+</body>
+</html>
