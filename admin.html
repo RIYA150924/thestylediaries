@@ -1,0 +1,1110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Admin Panel — TheStyleDiaries</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Jost:wght@300;400;500;600&family=Great+Vibes&display=swap" rel="stylesheet"/>
+<style>
+:root{
+  --pink:#f2a7c3;--pink-deep:#c4607a;--pink-soft:#fce8f2;
+  --purple:#9b6db5;--purple-deep:#6b3d8a;
+  --gold:#c9a84c;--gold-light:#f0d080;
+  --dark:#13071c;--dark-mid:#1e0d2c;--dark-light:#2a1040;
+  --green:#4caf82;--red:#c44c4c;
+  --white:#fff;--muted:rgba(255,255,255,0.45);
+}
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:'Jost',sans-serif;background:var(--dark);color:var(--white);min-height:100vh;}
+
+/* ── SETUP SCREEN ── */
+#setupScreen{position:fixed;inset:0;background:var(--dark);z-index:9999;display:flex;align-items:center;justify-content:center;padding:20px;overflow-y:auto;}
+#setupScreen.hidden{display:none;}
+.setup-box{background:var(--dark-mid);border:1px solid rgba(201,168,76,0.2);padding:50px 44px;width:100%;max-width:540px;}
+.setup-logo{font-family:'Great Vibes',cursive;font-size:2.8rem;background:linear-gradient(135deg,var(--gold-light),var(--pink),var(--gold));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;display:block;margin-bottom:4px;}
+.setup-sub{font-size:0.58rem;letter-spacing:4px;text-transform:uppercase;color:rgba(255,255,255,0.25);margin-bottom:36px;display:block;}
+.setup-step{background:rgba(201,168,76,0.07);border:1px solid rgba(201,168,76,0.15);padding:20px 24px;margin-bottom:20px;}
+.setup-step-num{font-size:0.55rem;text-transform:uppercase;letter-spacing:3px;color:var(--gold);font-weight:700;margin-bottom:10px;display:block;}
+.setup-step p{font-size:0.82rem;color:rgba(255,255,255,0.55);line-height:1.8;margin-bottom:12px;}
+.setup-step a{color:var(--pink);text-decoration:none;font-weight:600;}
+.setup-step a:hover{text-decoration:underline;}
+.setup-label{font-size:0.62rem;text-transform:uppercase;letter-spacing:2px;color:var(--gold);display:block;margin-bottom:8px;font-weight:600;}
+.setup-input{width:100%;background:rgba(255,255,255,0.04);border:1px solid rgba(201,168,76,0.2);color:white;padding:13px 16px;font-size:0.88rem;font-family:'Jost',sans-serif;outline:none;transition:border-color 0.3s;margin-bottom:4px;}
+.setup-input:focus{border-color:var(--pink);}
+.setup-input::placeholder{color:rgba(255,255,255,0.2);}
+.setup-hint{font-size:0.68rem;color:rgba(255,255,255,0.22);line-height:1.7;margin-bottom:14px;}
+.setup-btn{width:100%;background:linear-gradient(135deg,var(--pink-deep),var(--purple-deep));color:white;border:none;padding:16px;font-size:0.68rem;text-transform:uppercase;letter-spacing:3px;cursor:pointer;font-family:'Jost',sans-serif;font-weight:700;transition:all 0.3s;margin-top:8px;}
+.setup-btn:hover{opacity:0.88;}
+.setup-error{color:#ff6b6b;font-size:0.75rem;margin-top:10px;display:none;padding:10px;background:rgba(255,100,100,0.08);border:1px solid rgba(255,100,100,0.15);}
+.setup-testing{color:var(--gold);font-size:0.75rem;margin-top:10px;display:none;}
+
+/* ── LOGIN SCREEN ── */
+#loginScreen{position:fixed;inset:0;background:var(--dark);z-index:9998;display:flex;align-items:center;justify-content:center;padding:20px;}
+#loginScreen.hidden{display:none;}
+.login-box{background:var(--dark-mid);border:1px solid rgba(201,168,76,0.2);padding:50px 44px;width:100%;max-width:400px;text-align:center;}
+.login-logo{font-family:'Great Vibes',cursive;font-size:2.8rem;background:linear-gradient(135deg,var(--gold-light),var(--pink),var(--gold));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;display:block;margin-bottom:4px;}
+.login-sub{font-size:0.58rem;letter-spacing:4px;text-transform:uppercase;color:rgba(255,255,255,0.25);margin-bottom:36px;display:block;}
+.login-label{font-size:0.62rem;text-transform:uppercase;letter-spacing:2px;color:var(--gold);display:block;margin-bottom:8px;text-align:left;font-weight:600;}
+.login-input{width:100%;background:rgba(255,255,255,0.04);border:1px solid rgba(201,168,76,0.2);color:white;padding:13px 16px;font-size:0.9rem;font-family:'Jost',sans-serif;outline:none;transition:border-color 0.3s;margin-bottom:16px;}
+.login-input:focus{border-color:var(--pink);}
+.login-btn{width:100%;background:linear-gradient(135deg,var(--pink-deep),var(--purple-deep));color:white;border:none;padding:15px;font-size:0.68rem;text-transform:uppercase;letter-spacing:3px;cursor:pointer;font-family:'Jost',sans-serif;font-weight:700;transition:all 0.3s;}
+.login-btn:hover{opacity:0.88;}
+.login-error{color:#ff6b6b;font-size:0.75rem;margin-top:12px;display:none;}
+.login-hint{font-size:0.68rem;color:rgba(255,255,255,0.18);margin-top:16px;}
+.reconfigure-btn{background:none;border:none;color:rgba(255,255,255,0.2);font-size:0.65rem;cursor:pointer;font-family:'Jost',sans-serif;margin-top:12px;text-decoration:underline;}
+.reconfigure-btn:hover{color:var(--pink);}
+
+/* ── TOAST ── */
+.toast{position:fixed;bottom:28px;right:28px;z-index:9999;background:var(--dark-light);border:1px solid rgba(201,168,76,0.25);padding:14px 22px;font-size:0.82rem;opacity:0;transform:translateY(16px);transition:all 0.3s;pointer-events:none;max-width:300px;}
+.toast.show{opacity:1;transform:translateY(0);}
+.toast.t-green{border-color:rgba(76,175,130,0.4);color:var(--green);}
+.toast.t-red{border-color:rgba(196,76,76,0.4);color:#ff8a8a;}
+.toast.t-gold{border-color:rgba(201,168,76,0.4);color:var(--gold-light);}
+
+/* ── MODAL ── */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.85);z-index:9990;display:none;align-items:center;justify-content:center;padding:20px;}
+.modal-overlay.open{display:flex;}
+.modal{background:var(--dark-mid);border:1px solid rgba(201,168,76,0.2);padding:36px;width:100%;max-width:480px;}
+.modal h2{font-family:'Cormorant Garamond',serif;font-size:1.8rem;margin-bottom:10px;}
+.modal p{font-size:0.85rem;color:var(--muted);margin-bottom:24px;line-height:1.7;}
+.modal-actions{display:flex;gap:12px;}
+
+/* ── LAYOUT ── */
+.admin-wrap{display:grid;grid-template-columns:250px 1fr;min-height:100vh;}
+.sidebar{background:var(--dark-mid);border-right:1px solid rgba(201,168,76,0.1);display:flex;flex-direction:column;position:sticky;top:0;height:100vh;overflow-y:auto;}
+.sidebar-brand{padding:24px 20px 18px;border-bottom:1px solid rgba(255,255,255,0.05);}
+.sidebar-logo{font-family:'Great Vibes',cursive;font-size:1.7rem;background:linear-gradient(135deg,var(--gold-light),var(--pink));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;display:block;}
+.sidebar-role{font-size:0.52rem;letter-spacing:3px;text-transform:uppercase;color:rgba(255,255,255,0.18);margin-top:2px;display:block;}
+.sidebar-nav{padding:18px 0;flex:1;}
+.nav-section{padding:8px 20px 4px;font-size:0.52rem;text-transform:uppercase;letter-spacing:4px;color:rgba(255,255,255,0.18);font-weight:600;}
+.nav-item{display:flex;align-items:center;gap:10px;padding:11px 20px;cursor:pointer;transition:all 0.2s;font-size:0.78rem;color:rgba(255,255,255,0.4);border-left:2px solid transparent;}
+.nav-item:hover{background:rgba(255,255,255,0.03);color:rgba(255,255,255,0.7);}
+.nav-item.active{background:rgba(201,168,76,0.06);color:var(--gold-light);border-left-color:var(--gold);}
+.nav-item .ni{font-size:1rem;width:18px;text-align:center;}
+.sidebar-footer{padding:16px 20px;border-top:1px solid rgba(255,255,255,0.05);}
+.sync-status{font-size:0.62rem;color:rgba(255,255,255,0.2);margin-bottom:10px;display:flex;align-items:center;gap:6px;}
+.sync-dot{width:7px;height:7px;border-radius:50%;background:var(--green);display:inline-block;}
+.sync-dot.red{background:var(--red);}
+.logout-btn{background:none;border:1px solid rgba(196,96,122,0.2);color:rgba(255,255,255,0.3);padding:8px 14px;font-size:0.6rem;text-transform:uppercase;letter-spacing:2px;cursor:pointer;font-family:'Jost',sans-serif;transition:all 0.2s;width:100%;}
+.logout-btn:hover{border-color:var(--red);color:var(--red);}
+
+/* ── MAIN ── */
+.main{padding:36px 44px;overflow-y:auto;}
+.panel{display:none;}
+.panel.active{display:block;}
+.page-header{margin-bottom:32px;}
+.page-header h1{font-family:'Cormorant Garamond',serif;font-weight:300;font-size:2.2rem;line-height:1;}
+.page-header h1 em{font-style:italic;background:linear-gradient(135deg,var(--pink),var(--purple));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+.page-header p{font-size:0.78rem;color:rgba(255,255,255,0.28);margin-top:6px;}
+
+/* ── BUTTONS ── */
+.btn{display:inline-flex;align-items:center;gap:8px;padding:10px 22px;font-size:0.63rem;text-transform:uppercase;letter-spacing:2px;font-weight:700;cursor:pointer;font-family:'Jost',sans-serif;border:none;transition:all 0.25s;}
+.btn-pink{background:linear-gradient(135deg,var(--pink-deep),var(--purple-deep));color:white;}
+.btn-pink:hover{opacity:0.88;transform:translateY(-1px);}
+.btn-gold{background:linear-gradient(135deg,var(--gold),#a87830);color:var(--dark);}
+.btn-gold:hover{opacity:0.88;transform:translateY(-1px);}
+.btn-outline{background:transparent;border:1px solid rgba(255,255,255,0.12);color:rgba(255,255,255,0.45);}
+.btn-outline:hover{border-color:rgba(255,255,255,0.3);color:white;}
+.btn-red{background:rgba(196,76,76,0.12);border:1px solid rgba(196,76,76,0.22);color:#ff8a8a;}
+.btn-red:hover{background:rgba(196,76,76,0.22);}
+.btn-green{background:rgba(76,175,130,0.12);border:1px solid rgba(76,175,130,0.22);color:var(--green);}
+.btn-sm{padding:7px 13px;font-size:0.57rem;}
+.btn:disabled{opacity:0.4;cursor:not-allowed;transform:none!important;}
+
+/* ── STATS ── */
+.stats-row{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:32px;}
+.stat-card{background:var(--dark-mid);border:1px solid rgba(255,255,255,0.05);padding:22px;position:relative;overflow:hidden;}
+.stat-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;}
+.stat-card.s-gold::before{background:linear-gradient(90deg,var(--gold),var(--gold-light));}
+.stat-card.s-pink::before{background:linear-gradient(90deg,var(--pink-deep),var(--pink));}
+.stat-card.s-purple::before{background:linear-gradient(90deg,var(--purple-deep),var(--purple));}
+.stat-card.s-green::before{background:linear-gradient(90deg,#2e7d32,var(--green));}
+.stat-num{font-family:'Cormorant Garamond',serif;font-size:2.6rem;font-weight:300;line-height:1;display:block;margin-bottom:4px;}
+.stat-label{font-size:0.6rem;text-transform:uppercase;letter-spacing:2px;color:rgba(255,255,255,0.28);}
+.stat-icon{position:absolute;right:18px;top:18px;font-size:1.8rem;opacity:0.1;}
+
+/* ── TABLE ── */
+.table-wrap{background:var(--dark-mid);border:1px solid rgba(255,255,255,0.05);overflow:hidden;margin-top:18px;}
+.table-head{padding:14px 22px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid rgba(255,255,255,0.05);}
+.table-head h3{font-size:0.72rem;text-transform:uppercase;letter-spacing:2px;color:rgba(255,255,255,0.35);}
+table{width:100%;border-collapse:collapse;}
+th{font-size:0.57rem;text-transform:uppercase;letter-spacing:3px;color:rgba(255,255,255,0.22);padding:12px 18px;text-align:left;border-bottom:1px solid rgba(255,255,255,0.05);font-weight:600;}
+td{padding:14px 18px;font-size:0.8rem;color:rgba(255,255,255,0.55);border-bottom:1px solid rgba(255,255,255,0.03);vertical-align:middle;}
+tr:last-child td{border-bottom:none;}
+tr:hover td{background:rgba(255,255,255,0.02);}
+.td-title{color:rgba(255,255,255,0.82);font-weight:500;max-width:260px;}
+.badge{display:inline-block;font-size:0.54rem;text-transform:uppercase;letter-spacing:1.5px;padding:4px 9px;font-weight:700;}
+.badge-pink{background:rgba(196,96,122,0.16);color:var(--pink);}
+.badge-green{background:rgba(76,175,130,0.13);color:var(--green);}
+.badge-grey{background:rgba(255,255,255,0.05);color:rgba(255,255,255,0.28);}
+.actions{display:flex;gap:7px;flex-wrap:wrap;}
+.empty-state{text-align:center;padding:55px 20px;color:rgba(255,255,255,0.18);}
+.empty-state .es-icon{font-size:2.8rem;display:block;margin-bottom:10px;}
+.empty-state p{font-size:0.82rem;}
+
+/* ── FORM ── */
+.form-wrap{background:var(--dark-mid);border:1px solid rgba(255,255,255,0.05);padding:32px;}
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:18px;}
+.form-full{grid-column:1/-1;}
+.form-group{display:flex;flex-direction:column;gap:7px;}
+.form-label{font-size:0.6rem;text-transform:uppercase;letter-spacing:2px;color:var(--gold);font-weight:600;}
+.form-label span{color:rgba(255,255,255,0.2);font-weight:300;text-transform:none;letter-spacing:0;font-size:0.68rem;}
+.form-input,.form-select,.form-textarea{background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.1);color:white;padding:12px 14px;font-size:0.86rem;font-family:'Jost',sans-serif;font-weight:300;outline:none;transition:border-color 0.3s;width:100%;}
+.form-input:focus,.form-select:focus,.form-textarea:focus{border-color:var(--pink);}
+.form-input::placeholder,.form-textarea::placeholder{color:rgba(255,255,255,0.16);}
+.form-select option{background:#1e0d2c;}
+.form-textarea{min-height:300px;resize:vertical;line-height:1.8;}
+.form-hint{font-size:0.66rem;color:rgba(255,255,255,0.2);margin-top:3px;line-height:1.6;}
+.form-divider{grid-column:1/-1;height:1px;background:rgba(255,255,255,0.05);margin:6px 0;}
+.form-actions{display:flex;gap:12px;margin-top:26px;align-items:center;flex-wrap:wrap;}
+.saving-indicator{font-size:0.72rem;color:var(--gold);display:none;align-items:center;gap:8px;}
+.saving-indicator.show{display:flex;}
+
+/* ── ICON / COLOR PICKERS ── */
+.icon-picker{display:flex;flex-wrap:wrap;gap:7px;margin-top:7px;}
+.icon-opt{width:40px;height:40px;display:flex;align-items:center;justify-content:center;font-size:1.3rem;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.07);cursor:pointer;transition:all 0.2s;}
+.icon-opt:hover,.icon-opt.selected{background:rgba(201,168,76,0.1);border-color:var(--gold);}
+.color-picker{display:flex;flex-wrap:wrap;gap:7px;margin-top:7px;}
+.color-opt{width:38px;height:38px;cursor:pointer;border:2px solid transparent;transition:all 0.2s;}
+.color-opt.selected{border-color:white;transform:scale(1.1);}
+.g-pink{background:linear-gradient(145deg,#f078b0,#b030b8,#7020a8);}
+.g-gold{background:linear-gradient(145deg,#f8e898,#d4a848,#806018);}
+.g-purple{background:linear-gradient(145deg,#e0c8f8,#9858c8,#5020a0);}
+.g-coral{background:linear-gradient(145deg,#ffd8c8,#f0a080,#c06040);}
+.g-lilac{background:linear-gradient(145deg,#f0d8f8,#c080e0,#8040c0);}
+.g-silver{background:linear-gradient(145deg,#e8ecf8,#a8b0d0,#7080a8);}
+.g-rose{background:linear-gradient(145deg,#ffc0d0,#e87090,#b84060);}
+.g-teal{background:linear-gradient(145deg,#c8f0e8,#68c8a8,#308870);}
+
+/* ── TOOLBAR ── */
+.editor-toolbar{display:flex;gap:3px;flex-wrap:wrap;padding:8px;background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.08);border-bottom:none;}
+.tb-btn{background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.06);color:rgba(255,255,255,0.5);padding:5px 11px;font-size:0.7rem;cursor:pointer;font-family:'Jost',sans-serif;transition:all 0.2s;}
+.tb-btn:hover{background:rgba(255,255,255,0.09);color:white;}
+.tb-sep{width:1px;background:rgba(255,255,255,0.07);margin:0 3px;}
+
+/* ── LIVE PREVIEW ── */
+.preview-card{background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.06);padding:18px;}
+.preview-label{font-size:0.56rem;text-transform:uppercase;letter-spacing:3px;color:rgba(255,255,255,0.18);margin-bottom:10px;}
+.preview-hero{height:90px;display:flex;align-items:center;justify-content:center;font-size:2.8rem;margin-bottom:10px;}
+.preview-cat{font-size:0.56rem;text-transform:uppercase;letter-spacing:2px;color:var(--pink);margin-bottom:5px;}
+.preview-title{font-family:'Cormorant Garamond',serif;font-size:1.1rem;color:rgba(255,255,255,0.82);margin-bottom:5px;line-height:1.3;}
+.preview-meta{font-size:0.6rem;color:var(--gold);}
+
+/* ── SETTINGS ── */
+.settings-grid{display:grid;grid-template-columns:1fr 1fr;gap:18px;}
+.settings-section{background:var(--dark-mid);border:1px solid rgba(255,255,255,0.05);padding:26px;}
+.settings-section h3{font-size:0.68rem;text-transform:uppercase;letter-spacing:3px;color:var(--gold);margin-bottom:18px;padding-bottom:10px;border-bottom:1px solid rgba(255,255,255,0.05);}
+.settings-section.full{grid-column:1/-1;}
+.info-box{background:rgba(76,175,130,0.06);border:1px solid rgba(76,175,130,0.15);padding:16px;font-size:0.78rem;color:rgba(255,255,255,0.45);line-height:1.8;}
+.info-box strong{color:var(--green);}
+.warn-box{background:rgba(201,168,76,0.06);border:1px solid rgba(201,168,76,0.15);padding:16px;font-size:0.78rem;color:rgba(255,255,255,0.45);line-height:1.8;margin-bottom:16px;}
+.warn-box strong{color:var(--gold-light);}
+
+/* ── SEARCH ── */
+.search-bar{display:flex;gap:10px;margin-bottom:18px;}
+.search-bar input{flex:1;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.07);color:white;padding:10px 14px;font-size:0.83rem;font-family:'Jost',sans-serif;outline:none;}
+.search-bar input:focus{border-color:var(--pink);}
+
+/* ── AFFILIATE ── */
+.aff-section{background:var(--dark-mid);border:1px solid rgba(255,255,255,0.05);padding:26px;margin-bottom:18px;}
+.aff-section h3{font-size:0.68rem;text-transform:uppercase;letter-spacing:3px;color:var(--gold);margin-bottom:18px;padding-bottom:10px;border-bottom:1px solid rgba(255,255,255,0.05);}
+
+@media(max-width:900px){
+  .admin-wrap{grid-template-columns:1fr;}
+  .sidebar{display:none;}
+  .stats-row{grid-template-columns:1fr 1fr;}
+  .form-grid{grid-template-columns:1fr;}
+  .settings-grid{grid-template-columns:1fr;}
+  .main{padding:24px 18px;}
+}
+</style>
+</head>
+<body>
+
+<div class="toast" id="toast"></div>
+
+<!-- DELETE MODAL -->
+<div class="modal-overlay" id="deleteModal">
+  <div class="modal">
+    <h2>Delete <em style="font-style:italic;color:var(--pink)">Post?</em></h2>
+    <p>Yeh post permanently delete ho jaayegi GitHub se. Undo nahi ho sakta.</p>
+    <div class="modal-actions">
+      <button class="btn btn-red" id="confirmDeleteBtn">✕ Delete Karo</button>
+      <button class="btn btn-outline" onclick="closeModal()">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════
+     SETUP SCREEN — First time GitHub config
+══════════════════════════════════════════════════ -->
+<div id="setupScreen">
+  <div class="setup-box">
+    <span class="setup-logo">TheStyleDiaries</span>
+    <span class="setup-sub">Admin Panel — One-Time Setup</span>
+
+    <div class="setup-step">
+      <span class="setup-step-num">Step 1 — GitHub Personal Access Token</span>
+      <p>Yeh token admin panel ko permission deta hai GitHub mein posts save karne ki. <strong>Ek baar set karo — phir kabhi nahi karna.</strong></p>
+      <p>Token banane ke liye:</p>
+      <p>1. <a href="https://github.com/settings/tokens/new" target="_blank">github.com/settings/tokens/new</a> kholo</p>
+      <p>2. <strong>Note:</strong> "TheStyleDiaries Admin" likho</p>
+      <p>3. <strong>Expiration:</strong> "No expiration" choose karo</p>
+      <p>4. <strong>Scopes:</strong> sirf <strong>"repo"</strong> checkbox tick karo</p>
+      <p>5. "Generate token" click karo → copy karo (ghps_ se shuru hoga)</p>
+    </div>
+
+    <div style="margin-bottom:20px;">
+      <label class="setup-label">GitHub Personal Access Token</label>
+      <input class="setup-input" id="s-token" type="password" placeholder="ghp_xxxxxxxxxxxxxxxxxxxx"/>
+      <div class="setup-hint">Yeh sirf tumhare browser mein save hoga — kisi ko share mat karna!</div>
+    </div>
+
+    <div class="setup-step">
+      <span class="setup-step-num">Step 2 — Repository Details</span>
+      <p>Tumhara GitHub username aur repository name daalo.</p>
+    </div>
+
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:20px;">
+      <div>
+        <label class="setup-label">GitHub Username</label>
+        <input class="setup-input" id="s-user" type="text" placeholder="RIYA150924"/>
+      </div>
+      <div>
+        <label class="setup-label">Repository Name</label>
+        <input class="setup-input" id="s-repo" type="text" placeholder="thestylediaries"/>
+      </div>
+    </div>
+
+    <div style="margin-bottom:20px;">
+      <label class="setup-label">Admin Password (apna password choose karo)</label>
+      <input class="setup-input" id="s-password" type="password" placeholder="Minimum 6 characters"/>
+      <div class="setup-hint">Yeh password admin panel login ke liye hoga.</div>
+    </div>
+
+    <button class="setup-btn" onclick="doSetup()">✦ &nbsp; Setup Complete Karo</button>
+    <div class="setup-error" id="setupError"></div>
+    <div class="setup-testing" id="setupTesting">⏳ GitHub se connect ho raha hai...</div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════
+     LOGIN SCREEN
+══════════════════════════════════════════════════ -->
+<div id="loginScreen" class="hidden">
+  <div class="login-box">
+    <span class="login-logo">TheStyleDiaries</span>
+    <span class="login-sub">Admin Panel</span>
+    <label class="login-label">Password</label>
+    <input class="login-input" id="loginPw" type="password" placeholder="Admin password daalo" onkeydown="if(event.key==='Enter')doLogin()"/>
+    <button class="login-btn" onclick="doLogin()">✦ &nbsp; Login</button>
+    <div class="login-error" id="loginError">Wrong password! Try again.</div>
+    <p class="login-hint">Apna wahi password jo setup mein set kiya tha</p>
+    <button class="reconfigure-btn" onclick="resetSetup()">Settings reset karni hai?</button>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════
+     ADMIN PANEL
+══════════════════════════════════════════════════ -->
+<div class="admin-wrap" id="adminPanel" style="display:none;">
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <div class="sidebar-brand">
+      <span class="sidebar-logo">TheStyleDiaries</span>
+      <span class="sidebar-role">Admin Dashboard</span>
+    </div>
+    <nav class="sidebar-nav">
+      <div class="nav-section">Main</div>
+      <div class="nav-item active" onclick="showPanel('dashboard')"><span class="ni">📊</span> Dashboard</div>
+      <div class="nav-item" onclick="showPanel('posts')"><span class="ni">📝</span> All Posts</div>
+      <div class="nav-item" onclick="showPanel('newpost')"><span class="ni">✦</span> New Post</div>
+      <div class="nav-section">Manage</div>
+      <div class="nav-item" onclick="showPanel('affiliate')"><span class="ni">💸</span> Affiliate Links</div>
+      <div class="nav-section">Site</div>
+      <div class="nav-item" onclick="showPanel('settings')"><span class="ni">⚙️</span> Settings</div>
+      <div class="nav-item" onclick="window.open('index.html','_blank')"><span class="ni">🌸</span> Website Dekho</div>
+    </nav>
+    <div class="sidebar-footer">
+      <div class="sync-status"><span class="sync-dot" id="syncDot"></span><span id="syncText">GitHub connected</span></div>
+      <button class="logout-btn" onclick="doLogout()">✕ Logout</button>
+    </div>
+  </aside>
+
+  <!-- MAIN -->
+  <main class="main">
+
+    <!-- DASHBOARD -->
+    <div id="panel-dashboard" class="panel active">
+      <div class="page-header">
+        <h1>Welcome back, <em>Riya</em> 🌸</h1>
+        <p id="dash-subtitle">Posts load ho rahe hain...</p>
+      </div>
+      <div class="stats-row" id="dashStats">
+        <div class="stat-card s-gold"><span class="stat-num">—</span><span class="stat-label">Total Posts</span><span class="stat-icon">📝</span></div>
+        <div class="stat-card s-pink"><span class="stat-num">—</span><span class="stat-label">Published</span><span class="stat-icon">✦</span></div>
+        <div class="stat-card s-purple"><span class="stat-num">—</span><span class="stat-label">Drafts</span><span class="stat-icon">📋</span></div>
+        <div class="stat-card s-green"><span class="stat-num">—</span><span class="stat-label">Categories</span><span class="stat-icon">🗂️</span></div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:18px;">
+        <div>
+          <div class="table-wrap">
+            <div class="table-head"><h3>Recent Posts</h3><button class="btn btn-sm btn-pink" onclick="showPanel('newpost')">+ New Post</button></div>
+            <div id="dashRecentPosts"><div class="empty-state"><span class="es-icon">⏳</span><p>Loading...</p></div></div>
+          </div>
+        </div>
+        <div>
+          <div class="table-wrap">
+            <div class="table-head"><h3>Quick Actions</h3></div>
+            <div style="padding:18px;display:flex;flex-direction:column;gap:10px;">
+              <button class="btn btn-pink" onclick="showPanel('newpost')" style="width:100%;justify-content:center;">✦ Naya Post Likho</button>
+              <button class="btn btn-gold" onclick="showPanel('affiliate')" style="width:100%;justify-content:center;">💸 Affiliate Links</button>
+              <button class="btn btn-outline" onclick="loadAndRender();toast('Refreshing...','gold')" style="width:100%;justify-content:center;">🔄 Refresh Posts</button>
+              <button class="btn btn-outline" onclick="window.open('https://github.com/'+getConfig().username+'/'+getConfig().repo,'_blank')" style="width:100%;justify-content:center;">📁 GitHub Repo Dekho</button>
+            </div>
+          </div>
+          <div class="table-wrap" style="margin-top:18px;">
+            <div class="table-head"><h3>How It Works</h3></div>
+            <div style="padding:18px;font-size:0.78rem;color:var(--muted);line-height:1.9;">
+              <p style="margin-bottom:8px;">✦ <strong style="color:var(--gold-light);">Post likho</strong> → GitHub mein save hoga</p>
+              <p style="margin-bottom:8px;">✦ <strong style="color:var(--gold-light);">Netlify auto-deploy</strong> → 1-2 min mein live</p>
+              <p style="margin-bottom:8px;">✦ <strong style="color:var(--gold-light);">Koi bhi device</strong> → phone, laptop, cafe</p>
+              <p>✦ <strong style="color:var(--gold-light);">Sab sync</strong> → permanent, safe, backed up</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ALL POSTS -->
+    <div id="panel-posts" class="panel">
+      <div class="page-header" style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:14px;">
+        <div><h1>All <em>Posts</em></h1><p>GitHub se live posts</p></div>
+        <button class="btn btn-pink" onclick="showPanel('newpost')">+ New Post</button>
+      </div>
+      <div class="search-bar"><input type="text" placeholder="Posts search karo..." id="postSearch" oninput="renderPostsTable()"/></div>
+      <div id="postsTableWrap" class="table-wrap"></div>
+    </div>
+
+    <!-- NEW / EDIT POST -->
+    <div id="panel-newpost" class="panel">
+      <div class="page-header" style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:14px;">
+        <div><h1 id="postFormTitle">Naya <em>Post</em> Likho</h1><p id="postFormSub">Sab fill karo aur publish karo</p></div>
+        <button class="btn btn-outline btn-sm" onclick="showPanel('posts')">← Wapas</button>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 300px;gap:22px;">
+        <div>
+          <div class="form-wrap">
+            <input type="hidden" id="editPostId"/>
+            <input type="hidden" id="editPostSha"/>
+            <div class="form-grid">
+              <div class="form-group form-full">
+                <label class="form-label">Post Title <span>*</span></label>
+                <input class="form-input" id="f-title" type="text" placeholder="jaise: My Skincare Routine Under ₹500" oninput="updatePreview()"/>
+              </div>
+              <div class="form-group">
+                <label class="form-label">Category <span>*</span></label>
+                <select class="form-select" id="f-cat" onchange="updatePreview()">
+                  <option value="">Category choose karo...</option>
+                  <option value="skincare">🌿 Skincare</option>
+                  <option value="fashion">👗 Fashion</option>
+                  <option value="makeup">💄 Makeup</option>
+                  <option value="haircare">💆 Hair Care</option>
+                  <option value="budget">💸 Budget Finds</option>
+                  <option value="reviews">⭐ Reviews</option>
+                  <option value="lifestyle">🌸 Lifestyle</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label class="form-label">Date</label>
+                <input class="form-input" id="f-date" type="text" placeholder="April 2026"/>
+              </div>
+              <div class="form-group">
+                <label class="form-label">Read Time</label>
+                <input class="form-input" id="f-readtime" type="text" placeholder="5 min read"/>
+              </div>
+              <div class="form-group form-full">
+                <label class="form-label">Short Excerpt <span>(card par dikhta hai)</span></label>
+                <input class="form-input" id="f-excerpt" type="text" placeholder="Ek line mein post ka summary" oninput="updatePreview()"/>
+              </div>
+              <div class="form-divider"></div>
+              <div class="form-group form-full">
+                <label class="form-label">Card Icon</label>
+                <div class="icon-picker" id="iconPicker">
+                  <div class="icon-opt selected" data-icon="🌿" onclick="pickIcon(this)">🌿</div>
+                  <div class="icon-opt" data-icon="💄" onclick="pickIcon(this)">💄</div>
+                  <div class="icon-opt" data-icon="👗" onclick="pickIcon(this)">👗</div>
+                  <div class="icon-opt" data-icon="☀️" onclick="pickIcon(this)">☀️</div>
+                  <div class="icon-opt" data-icon="💅" onclick="pickIcon(this)">💅</div>
+                  <div class="icon-opt" data-icon="🛍️" onclick="pickIcon(this)">🛍️</div>
+                  <div class="icon-opt" data-icon="✨" onclick="pickIcon(this)">✨</div>
+                  <div class="icon-opt" data-icon="💆" onclick="pickIcon(this)">💆</div>
+                  <div class="icon-opt" data-icon="🌸" onclick="pickIcon(this)">🌸</div>
+                  <div class="icon-opt" data-icon="👠" onclick="pickIcon(this)">👠</div>
+                  <div class="icon-opt" data-icon="🧴" onclick="pickIcon(this)">🧴</div>
+                  <div class="icon-opt" data-icon="🪞" onclick="pickIcon(this)">🪞</div>
+                  <div class="icon-opt" data-icon="💋" onclick="pickIcon(this)">💋</div>
+                  <div class="icon-opt" data-icon="🌺" onclick="pickIcon(this)">🌺</div>
+                  <div class="icon-opt" data-icon="🎀" onclick="pickIcon(this)">🎀</div>
+                </div>
+              </div>
+              <div class="form-group form-full">
+                <label class="form-label">Card Background</label>
+                <div class="color-picker" id="colorPicker">
+                  <div class="color-opt g-pink selected" data-color="g-pink" onclick="pickColor(this)"></div>
+                  <div class="color-opt g-gold" data-color="g-gold" onclick="pickColor(this)"></div>
+                  <div class="color-opt g-purple" data-color="g-purple" onclick="pickColor(this)"></div>
+                  <div class="color-opt g-coral" data-color="g-coral" onclick="pickColor(this)"></div>
+                  <div class="color-opt g-lilac" data-color="g-lilac" onclick="pickColor(this)"></div>
+                  <div class="color-opt g-silver" data-color="g-silver" onclick="pickColor(this)"></div>
+                  <div class="color-opt g-rose" data-color="g-rose" onclick="pickColor(this)"></div>
+                  <div class="color-opt g-teal" data-color="g-teal" onclick="pickColor(this)"></div>
+                </div>
+              </div>
+              <div class="form-divider"></div>
+              <div class="form-group form-full">
+                <label class="form-label">Article Content <span>(HTML supported: &lt;h2&gt; &lt;h3&gt; &lt;p&gt; &lt;strong&gt; &lt;ul&gt;&lt;li&gt; &lt;blockquote&gt;)</span></label>
+                <div class="editor-toolbar">
+                  <button class="tb-btn" onclick="insertTag('h2')">H2</button>
+                  <button class="tb-btn" onclick="insertTag('h3')">H3</button>
+                  <div class="tb-sep"></div>
+                  <button class="tb-btn" onclick="insertTag('p')">Para</button>
+                  <button class="tb-btn" onclick="insertInline('strong')"><b>Bold</b></button>
+                  <button class="tb-btn" onclick="insertInline('em')"><i>Italic</i></button>
+                  <div class="tb-sep"></div>
+                  <button class="tb-btn" onclick="insertList()">List</button>
+                  <button class="tb-btn" onclick="insertTag('blockquote')">Quote</button>
+                  <div class="tb-sep"></div>
+                  <button class="tb-btn" onclick="insertAffBox()">💸 Affiliate Box</button>
+                </div>
+                <textarea class="form-textarea editor-area" id="f-body" placeholder="Apna pura article yahan likho...
+
+Tips:
+&lt;h2&gt;Section Heading&lt;/h2&gt;
+&lt;p&gt;Paragraph text&lt;/p&gt;
+&lt;strong&gt;Bold text&lt;/strong&gt;
+&lt;ul&gt;&lt;li&gt;List item&lt;/li&gt;&lt;/ul&gt;
+&lt;blockquote&gt;Quote&lt;/blockquote&gt;
+
+Affiliate Box ke liye upar wala button click karo!"></textarea>
+              </div>
+            </div>
+            <div class="form-actions">
+              <button class="btn btn-pink" onclick="savePost(false)" id="publishBtn">✦ GitHub Par Publish</button>
+              <button class="btn btn-outline" onclick="savePost(true)" id="draftBtn">Draft Save Karo</button>
+              <div class="saving-indicator" id="savingIndicator">⏳ GitHub mein save ho raha hai...</div>
+            </div>
+          </div>
+        </div>
+        <!-- PREVIEW -->
+        <div>
+          <div style="position:sticky;top:20px;">
+            <div style="font-size:0.6rem;text-transform:uppercase;letter-spacing:3px;color:rgba(255,255,255,0.2);margin-bottom:10px;">Live Preview</div>
+            <div class="preview-card">
+              <div class="preview-hero g-pink" id="prev-hero">🌿</div>
+              <div class="preview-cat" id="prev-cat">Category</div>
+              <div class="preview-title" id="prev-title">Post title yahan dikhega</div>
+              <div class="preview-meta" id="prev-meta">✦ Date · Read time</div>
+            </div>
+            <div style="margin-top:18px;font-size:0.72rem;color:rgba(255,255,255,0.25);line-height:1.9;">
+              <p style="margin-bottom:6px;">✦ Publish karo → GitHub save</p>
+              <p style="margin-bottom:6px;">✦ Netlify 1-2 min mein deploy</p>
+              <p>✦ Sab devices par dikhega</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- AFFILIATE -->
+    <div id="panel-affiliate" class="panel">
+      <div class="page-header"><h1>Affiliate <em>Links</em></h1><p>Amazon tag aur settings</p></div>
+      <div class="aff-section">
+        <h3>Amazon Associates Tag</h3>
+        <div class="warn-box"><strong>Important:</strong> Yeh tag ID tumhare Amazon affiliate account se milti hai. affiliate-program.amazon.in par jaao aur register karo. Tag ID kuch aisi dikhti hai: <strong>riyastyle-21</strong></div>
+        <div class="form-group" style="margin-bottom:16px;">
+          <label class="form-label">Tumhara Amazon Tag ID</label>
+          <input class="form-input" id="affTagInput" type="text" placeholder="jaise: riyastyle-21"/>
+          <div class="form-hint">Ek baar save karo — har naye post ke Affiliate Box mein automatically aa jaayega</div>
+        </div>
+        <button class="btn btn-gold" onclick="saveAffTag()">💾 Save Tag ID</button>
+      </div>
+      <div class="aff-section">
+        <h3>Affiliate Box Template</h3>
+        <p style="font-size:0.8rem;color:var(--muted);line-height:1.8;margin-bottom:16px;">Post likhte waqt "💸 Affiliate Box" button click karo — ek ready template insert ho jaata hai. Bas product name aur Amazon link edit karo.</p>
+        <div class="info-box">
+          <strong>Kaise kaam karta hai:</strong><br/>
+          1. New Post mein Content box mein jaao<br/>
+          2. Jahaan product box daalna ho — "💸 Affiliate Box" click karo<br/>
+          3. Template insert hoga — product name, price, Amazon link edit karo<br/>
+          4. Publish karo — done! ✦
+        </div>
+      </div>
+    </div>
+
+    <!-- SETTINGS -->
+    <div id="panel-settings" class="panel">
+      <div class="page-header"><h1>Site <em>Settings</em></h1><p>Admin aur blog settings</p></div>
+      <div class="settings-grid">
+        <div class="settings-section">
+          <h3>GitHub Connection</h3>
+          <div class="info-box" style="margin-bottom:16px;">
+            <strong>Connected:</strong> github.com/<span id="s-show-user"></span>/<span id="s-show-repo"></span>
+          </div>
+          <button class="btn btn-outline" onclick="resetSetup()">🔧 Reconnect / Change Settings</button>
+        </div>
+        <div class="settings-section">
+          <h3>Admin Password Change</h3>
+          <div class="form-group" style="margin-bottom:14px;">
+            <label class="form-label">Current Password</label>
+            <input class="form-input" id="pw-current" type="password" placeholder="Current password"/>
+          </div>
+          <div class="form-group" style="margin-bottom:14px;">
+            <label class="form-label">New Password</label>
+            <input class="form-input" id="pw-new" type="password" placeholder="Naya password (6+ chars)"/>
+          </div>
+          <div class="form-group" style="margin-bottom:18px;">
+            <label class="form-label">Confirm Password</label>
+            <input class="form-input" id="pw-confirm" type="password" placeholder="Confirm karo"/>
+          </div>
+          <button class="btn btn-outline" onclick="changePassword()">Update Password</button>
+        </div>
+        <div class="settings-section full">
+          <h3>How This Works — Samjho</h3>
+          <div class="info-box">
+            <strong>Posts kahan save hote hain?</strong> Tumhare GitHub repository mein — <code>posts/</code> folder mein. Har post ek JSON file hai.<br/><br/>
+            <strong>Website kaise update hoti hai?</strong> GitHub update hote hi Netlify automatically detect karta hai aur 1-2 minute mein website deploy ho jaati hai.<br/><br/>
+            <strong>Kisi bhi device se kaam?</strong> Haan! Admin panel URL tumhara <code>netlify-site/admin.html</code> hai — phone, laptop, anywhere se kholo, GitHub se sab data milega.<br/><br/>
+            <strong>Backup?</strong> GitHub khud backup hai — sab posts GitHub par permanently safe hain.
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<script>
+// ════════ CONFIG ════════
+const STORAGE_KEY = 'tsd_gh_config';
+const SESSION_KEY = 'tsd_session';
+
+function getConfig() {
+  try { return JSON.parse(localStorage.getItem(STORAGE_KEY) || 'null'); } catch { return null; }
+}
+function saveConfig(cfg) { localStorage.setItem(STORAGE_KEY, JSON.stringify(cfg)); }
+function isLoggedIn() { return sessionStorage.getItem(SESSION_KEY) === '1'; }
+function setLoggedIn() { sessionStorage.setItem(SESSION_KEY, '1'); }
+function setLoggedOut() { sessionStorage.removeItem(SESSION_KEY); }
+
+// ════════ STARTUP ════════
+window.addEventListener('DOMContentLoaded', () => {
+  const cfg = getConfig();
+  if (!cfg) {
+    // First time — show setup
+    document.getElementById('setupScreen').classList.remove('hidden');
+  } else if (!isLoggedIn()) {
+    document.getElementById('setupScreen').classList.add('hidden');
+    document.getElementById('loginScreen').classList.remove('hidden');
+  } else {
+    showAdmin();
+  }
+  // Pre-fill setup if partial config exists
+  if (cfg) {
+    if (document.getElementById('s-user')) document.getElementById('s-user').value = cfg.username || '';
+    if (document.getElementById('s-repo')) document.getElementById('s-repo').value = cfg.repo || '';
+  }
+});
+
+// ════════ SETUP ════════
+async function doSetup() {
+  const token = document.getElementById('s-token').value.trim();
+  const username = document.getElementById('s-user').value.trim();
+  const repo = document.getElementById('s-repo').value.trim();
+  const password = document.getElementById('s-password').value.trim();
+  const errEl = document.getElementById('setupError');
+  const testEl = document.getElementById('setupTesting');
+
+  errEl.style.display = 'none';
+  if (!token || !username || !repo || !password) {
+    errEl.textContent = 'Sab fields fill karo!'; errEl.style.display = 'block'; return;
+  }
+  if (password.length < 6) {
+    errEl.textContent = 'Password kam se kam 6 characters ka hona chahiye!'; errEl.style.display = 'block'; return;
+  }
+
+  testEl.style.display = 'block';
+
+  // Test GitHub connection
+  try {
+    const res = await fetch(`https://api.github.com/repos/${username}/${repo}`, {
+      headers: { 'Authorization': `token ${token}`, 'Accept': 'application/vnd.github.v3+json' }
+    });
+    if (!res.ok) {
+      testEl.style.display = 'none';
+      errEl.textContent = `GitHub error: ${res.status}. Username, repo name aur token check karo.`;
+      errEl.style.display = 'block'; return;
+    }
+  } catch (e) {
+    testEl.style.display = 'none';
+    errEl.textContent = 'Internet connection check karo.'; errEl.style.display = 'block'; return;
+  }
+
+  // Save config
+  saveConfig({ token, username, repo, password });
+  testEl.style.display = 'none';
+  setLoggedIn();
+  document.getElementById('setupScreen').classList.add('hidden');
+  showAdmin();
+}
+
+// ════════ LOGIN ════════
+function doLogin() {
+  const cfg = getConfig();
+  const pw = document.getElementById('loginPw').value;
+  const errEl = document.getElementById('loginError');
+  if (pw === cfg.password) {
+    errEl.style.display = 'none';
+    document.getElementById('loginScreen').classList.add('hidden');
+    setLoggedIn();
+    showAdmin();
+  } else {
+    errEl.style.display = 'block';
+    document.getElementById('loginPw').value = '';
+  }
+}
+function doLogout() {
+  setLoggedOut();
+  document.getElementById('adminPanel').style.display = 'none';
+  document.getElementById('loginScreen').classList.remove('hidden');
+  document.getElementById('loginPw').value = '';
+}
+function resetSetup() {
+  if (!confirm('Settings reset karni hain? Token aur password dobara daalna hoga.')) return;
+  setLoggedOut();
+  localStorage.removeItem(STORAGE_KEY);
+  location.reload();
+}
+
+// ════════ SHOW ADMIN ════════
+function showAdmin() {
+  document.getElementById('adminPanel').style.display = 'grid';
+  const cfg = getConfig();
+  if (document.getElementById('s-show-user')) {
+    document.getElementById('s-show-user').textContent = cfg.username;
+    document.getElementById('s-show-repo').textContent = cfg.repo;
+  }
+  document.getElementById('affTagInput').value = localStorage.getItem('tsd_aff_tag') || '';
+  loadAndRender();
+}
+
+// ════════ GITHUB API ════════
+const POSTS_PATH = 'posts/posts.json';
+
+async function ghGet(path) {
+  const cfg = getConfig();
+  const res = await fetch(`https://api.github.com/repos/${cfg.username}/${cfg.repo}/contents/${path}`, {
+    headers: { 'Authorization': `token ${cfg.token}`, 'Accept': 'application/vnd.github.v3+json' }
+  });
+  if (res.status === 404) return null;
+  if (!res.ok) throw new Error(`GitHub GET error: ${res.status}`);
+  return res.json();
+}
+
+async function ghPut(path, content, sha, message) {
+  const cfg = getConfig();
+  const body = {
+    message,
+    content: btoa(unescape(encodeURIComponent(content))),
+    ...(sha ? { sha } : {})
+  };
+  const res = await fetch(`https://api.github.com/repos/${cfg.username}/${cfg.repo}/contents/${path}`, {
+    method: 'PUT',
+    headers: {
+      'Authorization': `token ${cfg.token}`,
+      'Accept': 'application/vnd.github.v3+json',
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify(body)
+  });
+  if (!res.ok) {
+    const err = await res.json();
+    throw new Error(err.message || `GitHub PUT error: ${res.status}`);
+  }
+  return res.json();
+}
+
+async function ghDelete(path, sha, message) {
+  const cfg = getConfig();
+  const res = await fetch(`https://api.github.com/repos/${cfg.username}/${cfg.repo}/contents/${path}`, {
+    method: 'DELETE',
+    headers: {
+      'Authorization': `token ${cfg.token}`,
+      'Accept': 'application/vnd.github.v3+json',
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({ message, sha })
+  });
+  if (!res.ok) throw new Error(`GitHub DELETE error: ${res.status}`);
+  return res.json();
+}
+
+// ════════ POSTS DATA ════════
+let POSTS_CACHE = null;
+let POSTS_SHA = null;
+
+async function fetchPosts() {
+  try {
+    const file = await ghGet(POSTS_PATH);
+    if (!file) { POSTS_CACHE = []; POSTS_SHA = null; return []; }
+    POSTS_SHA = file.sha;
+    const content = decodeURIComponent(escape(atob(file.content.replace(/\n/g, ''))));
+    POSTS_CACHE = JSON.parse(content);
+    return POSTS_CACHE;
+  } catch (e) {
+    console.error('fetchPosts error', e);
+    POSTS_CACHE = POSTS_CACHE || [];
+    return POSTS_CACHE;
+  }
+}
+
+async function savePosts(posts, message = 'Update posts') {
+  const content = JSON.stringify(posts, null, 2);
+  const result = await ghPut(POSTS_PATH, content, POSTS_SHA, message);
+  // Update SHA for next save
+  const updated = await ghGet(POSTS_PATH);
+  if (updated) POSTS_SHA = updated.sha;
+  POSTS_CACHE = posts;
+  return result;
+}
+
+// ════════ LOAD & RENDER ════════
+async function loadAndRender() {
+  setSyncStatus(true, 'Loading...');
+  try {
+    await fetchPosts();
+    renderDashboard();
+    renderPostsTable();
+    setSyncStatus(true, 'GitHub connected ✓');
+  } catch (e) {
+    setSyncStatus(false, 'Connection error');
+    toast('GitHub se connect nahi ho pa raha. Token check karo.', 'red');
+  }
+}
+
+function setSyncStatus(ok, text) {
+  const dot = document.getElementById('syncDot');
+  const txt = document.getElementById('syncText');
+  if (dot) dot.className = 'sync-dot' + (ok ? '' : ' red');
+  if (txt) txt.textContent = text;
+}
+
+// ════════ DASHBOARD ════════
+function renderDashboard() {
+  const posts = POSTS_CACHE || [];
+  const pub = posts.filter(p => p.status === 'published').length;
+  const drafts = posts.filter(p => p.status === 'draft').length;
+  const cats = [...new Set(posts.map(p => p.catKey).filter(Boolean))].length;
+
+  document.getElementById('dashStats').innerHTML = `
+    <div class="stat-card s-gold"><span class="stat-num">${posts.length}</span><span class="stat-label">Total Posts</span><span class="stat-icon">📝</span></div>
+    <div class="stat-card s-pink"><span class="stat-num">${pub}</span><span class="stat-label">Published</span><span class="stat-icon">✦</span></div>
+    <div class="stat-card s-purple"><span class="stat-num">${drafts}</span><span class="stat-label">Drafts</span><span class="stat-icon">📋</span></div>
+    <div class="stat-card s-green"><span class="stat-num">${cats}</span><span class="stat-label">Categories</span><span class="stat-icon">🗂️</span></div>
+  `;
+  document.getElementById('dash-subtitle').textContent = `${posts.length} posts — GitHub se live data`;
+
+  const recent = [...posts].reverse().slice(0, 5);
+  document.getElementById('dashRecentPosts').innerHTML = recent.length ? `
+    <table><thead><tr><th>Title</th><th>Category</th><th>Status</th></tr></thead><tbody>
+    ${recent.map(p => `
+      <tr onclick="editPost('${p.id}')" style="cursor:pointer;">
+        <td class="td-title">${p.icon || ''} ${p.title || 'Untitled'}</td>
+        <td><span class="badge badge-pink">${p.cat || '—'}</span></td>
+        <td><span class="badge ${p.status === 'published' ? 'badge-green' : 'badge-grey'}">${p.status || 'draft'}</span></td>
+      </tr>`).join('')}
+    </tbody></table>
+  ` : `<div class="empty-state"><span class="es-icon">📝</span><p>Abhi koi post nahi hai. Pehla post likho!</p></div>`;
+}
+
+// ════════ POSTS TABLE ════════
+function renderPostsTable() {
+  const q = (document.getElementById('postSearch') || {}).value || '';
+  const posts = [...(POSTS_CACHE || [])].reverse().filter(p =>
+    !q || (p.title || '').toLowerCase().includes(q.toLowerCase()) || (p.cat || '').toLowerCase().includes(q.toLowerCase())
+  );
+  document.getElementById('postsTableWrap').innerHTML = posts.length ? `
+    <table>
+      <thead><tr><th>Title</th><th>Category</th><th>Date</th><th>Status</th><th>Actions</th></tr></thead>
+      <tbody>
+        ${posts.map(p => `
+          <tr>
+            <td class="td-title">${p.icon || ''} ${p.title || 'Untitled'}</td>
+            <td><span class="badge badge-pink">${p.cat || '—'}</span></td>
+            <td style="font-size:0.72rem;color:rgba(255,255,255,0.28);">${p.date || '—'}</td>
+            <td><span class="badge ${p.status === 'published' ? 'badge-green' : 'badge-grey'}">${p.status || 'draft'}</span></td>
+            <td>
+              <div class="actions">
+                <button class="btn btn-sm btn-outline" onclick="editPost('${p.id}')">✏️ Edit</button>
+                <button class="btn btn-sm ${p.status === 'published' ? 'btn-outline' : 'btn-green'}" onclick="toggleStatus('${p.id}')">${p.status === 'published' ? '⬇ Unpublish' : '✦ Publish'}</button>
+                <button class="btn btn-sm btn-red" onclick="confirmDelete('${p.id}')">✕</button>
+              </div>
+            </td>
+          </tr>`).join('')}
+      </tbody>
+    </table>
+  ` : `<div class="empty-state"><span class="es-icon">📝</span><p>Koi post nahi mili. <span style="color:var(--pink);cursor:pointer;" onclick="showPanel('newpost')">Pehla post likho!</span></p></div>`;
+}
+
+// ════════ NEW / EDIT POST ════════
+function initNewPost() {
+  document.getElementById('editPostId').value = '';
+  document.getElementById('editPostSha').value = '';
+  document.getElementById('postFormTitle').innerHTML = 'Naya <em>Post</em> Likho';
+  document.getElementById('postFormSub').textContent = 'Sab fill karo aur publish karo';
+  document.getElementById('f-title').value = '';
+  document.getElementById('f-excerpt').value = '';
+  document.getElementById('f-body').value = '';
+  document.getElementById('f-date').value = new Date().toLocaleDateString('en-IN', { month: 'long', year: 'numeric' });
+  document.getElementById('f-readtime').value = '5 min read';
+  document.getElementById('f-cat').value = '';
+  pickColorByVal('g-pink');
+  pickIconByVal('🌿');
+  updatePreview();
+}
+
+function editPost(id) {
+  const post = (POSTS_CACHE || []).find(p => p.id === id);
+  if (!post) return;
+  showPanel('newpost');
+  setTimeout(() => {
+    document.getElementById('editPostId').value = post.id;
+    document.getElementById('postFormTitle').innerHTML = 'Post <em>Edit</em> Karo';
+    document.getElementById('postFormSub').textContent = 'Changes karo aur GitHub par save karo';
+    document.getElementById('f-title').value = post.title || '';
+    document.getElementById('f-excerpt').value = post.excerpt || '';
+    document.getElementById('f-body').value = post.body || '';
+    document.getElementById('f-date').value = post.date || '';
+    document.getElementById('f-readtime').value = post.readTime || '';
+    document.getElementById('f-cat').value = post.catKey || '';
+    pickColorByVal(post.bg || 'g-pink');
+    pickIconByVal(post.icon || '🌿');
+    updatePreview();
+  }, 80);
+}
+
+function genId() { return 'post-' + Date.now() + '-' + Math.random().toString(36).substr(2, 5); }
+
+async function savePost(isDraft) {
+  const title = document.getElementById('f-title').value.trim();
+  const catEl = document.getElementById('f-cat');
+  const catKey = catEl.value;
+  const catText = catEl.options[catEl.selectedIndex]?.text || '';
+  const cat = catText.replace(/^.+\s/, '').trim();
+  const excerpt = document.getElementById('f-excerpt').value.trim();
+  const body = document.getElementById('f-body').value.trim();
+  const date = document.getElementById('f-date').value.trim();
+  const readTime = document.getElementById('f-readtime').value.trim();
+  const icon = document.querySelector('#iconPicker .selected')?.dataset.icon || '🌿';
+  const bg = document.querySelector('#colorPicker .selected')?.dataset.color || 'g-pink';
+  const existingId = document.getElementById('editPostId').value;
+
+  if (!title) { toast('Title daalo!', 'red'); return; }
+  if (!catKey) { toast('Category choose karo!', 'red'); return; }
+  if (!body && !isDraft) { toast('Content likho!', 'red'); return; }
+
+  const id = existingId || genId();
+  const post = {
+    id, title, catKey, cat, excerpt, body, date, readTime, icon, bg,
+    status: isDraft ? 'draft' : 'published',
+    updatedAt: new Date().toISOString(),
+    createdAt: existingId ? ((POSTS_CACHE || []).find(p => p.id === id)?.createdAt || new Date().toISOString()) : new Date().toISOString()
+  };
+
+  // Show saving indicator
+  document.getElementById('savingIndicator').classList.add('show');
+  document.getElementById('publishBtn').disabled = true;
+  document.getElementById('draftBtn').disabled = true;
+
+  try {
+    const posts = [...(POSTS_CACHE || [])];
+    const idx = posts.findIndex(p => p.id === id);
+    if (idx >= 0) posts[idx] = post;
+    else posts.push(post);
+
+    await savePosts(posts, `${isDraft ? 'Draft' : 'Publish'}: ${title}`);
+
+    document.getElementById('savingIndicator').classList.remove('show');
+    document.getElementById('publishBtn').disabled = false;
+    document.getElementById('draftBtn').disabled = false;
+
+    toast(isDraft ? '✓ Draft GitHub par save ho gaya!' : '✦ Post publish ho gayi! 1-2 min mein website update hogi.', 'green');
+    document.getElementById('editPostId').value = id;
+    renderDashboard();
+    renderPostsTable();
+  } catch (e) {
+    document.getElementById('savingIndicator').classList.remove('show');
+    document.getElementById('publishBtn').disabled = false;
+    document.getElementById('draftBtn').disabled = false;
+    toast('Error: ' + e.message, 'red');
+  }
+}
+
+async function toggleStatus(id) {
+  const posts = POSTS_CACHE || [];
+  const post = posts.find(p => p.id === id);
+  if (!post) return;
+  post.status = post.status === 'published' ? 'draft' : 'published';
+  post.updatedAt = new Date().toISOString();
+  setSyncStatus(true, 'Saving...');
+  try {
+    await savePosts(posts, `${post.status === 'published' ? 'Publish' : 'Unpublish'}: ${post.title}`);
+    renderPostsTable();
+    renderDashboard();
+    setSyncStatus(true, 'GitHub connected ✓');
+    toast(post.status === 'published' ? '✦ Post published!' : 'Post unpublished.', post.status === 'published' ? 'green' : 'gold');
+  } catch (e) {
+    setSyncStatus(false, 'Save error');
+    toast('Error: ' + e.message, 'red');
+  }
+}
+
+// ════════ DELETE ════════
+let pendingDeleteId = null;
+function confirmDelete(id) {
+  pendingDeleteId = id;
+  document.getElementById('deleteModal').classList.add('open');
+  document.getElementById('confirmDeleteBtn').onclick = async () => {
+    closeModal();
+    const posts = (POSTS_CACHE || []).filter(p => p.id !== pendingDeleteId);
+    setSyncStatus(true, 'Deleting...');
+    try {
+      await savePosts(posts, 'Delete post');
+      renderPostsTable();
+      renderDashboard();
+      setSyncStatus(true, 'GitHub connected ✓');
+      toast('Post delete ho gayi.', 'red');
+    } catch (e) {
+      setSyncStatus(false, 'Error');
+      toast('Error: ' + e.message, 'red');
+    }
+  };
+}
+function closeModal() { document.getElementById('deleteModal').classList.remove('open'); pendingDeleteId = null; }
+
+// ════════ AFFILIATE ════════
+function saveAffTag() {
+  const tag = document.getElementById('affTagInput').value.trim();
+  localStorage.setItem('tsd_aff_tag', tag);
+  toast('✓ Affiliate tag save ho gaya!', 'gold');
+}
+
+// ════════ PANEL NAV ════════
+function showPanel(name) {
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  document.getElementById('panel-' + name).classList.add('active');
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  const map = { dashboard: 0, posts: 1, newpost: 2, affiliate: 3, settings: 4 };
+  const items = document.querySelectorAll('.nav-item');
+  if (map[name] !== undefined) items[map[name]]?.classList.add('active');
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+  if (name === 'newpost') initNewPost();
+}
+
+// ════════ ICON / COLOR ════════
+function pickIcon(el) { document.querySelectorAll('#iconPicker .icon-opt').forEach(x => x.classList.remove('selected')); el.classList.add('selected'); updatePreview(); }
+function pickColor(el) { document.querySelectorAll('#colorPicker .color-opt').forEach(x => x.classList.remove('selected')); el.classList.add('selected'); updatePreview(); }
+function pickIconByVal(v) { document.querySelectorAll('#iconPicker .icon-opt').forEach(x => x.classList.toggle('selected', x.dataset.icon === v)); }
+function pickColorByVal(v) { document.querySelectorAll('#colorPicker .color-opt').forEach(x => x.classList.toggle('selected', x.dataset.color === v)); }
+
+// ════════ PREVIEW ════════
+function updatePreview() {
+  const title = document.getElementById('f-title')?.value || 'Post title yahan dikhega';
+  const catEl = document.getElementById('f-cat');
+  const cat = catEl?.options[catEl.selectedIndex]?.text || 'Category';
+  const date = document.getElementById('f-date')?.value || 'Date';
+  const rt = document.getElementById('f-readtime')?.value || 'Read time';
+  const icon = document.querySelector('#iconPicker .selected')?.dataset.icon || '🌿';
+  const bg = document.querySelector('#colorPicker .selected')?.dataset.color || 'g-pink';
+  const h = document.getElementById('prev-hero');
+  if (h) { h.className = 'preview-hero ' + bg; h.textContent = icon; }
+  const pc = document.getElementById('prev-cat'); if (pc) pc.textContent = cat;
+  const pt = document.getElementById('prev-title'); if (pt) pt.textContent = title;
+  const pm = document.getElementById('prev-meta'); if (pm) pm.textContent = '✦ ' + date + ' · ' + rt;
+}
+
+// ════════ EDITOR TOOLBAR ════════
+function insertTag(tag) {
+  const ta = document.getElementById('f-body');
+  const s = ta.selectionStart, e = ta.selectionEnd;
+  const sel = ta.value.substring(s, e) || 'Text yahan likho';
+  const ins = `\n<${tag}>${sel}</${tag}>\n`;
+  ta.value = ta.value.substring(0, s) + ins + ta.value.substring(e);
+  ta.focus();
+}
+function insertInline(tag) {
+  const ta = document.getElementById('f-body');
+  const s = ta.selectionStart, e = ta.selectionEnd;
+  const sel = ta.value.substring(s, e) || 'text';
+  ta.value = ta.value.substring(0, s) + `<${tag}>${sel}</${tag}>` + ta.value.substring(e);
+  ta.focus();
+}
+function insertList() {
+  const ta = document.getElementById('f-body');
+  const s = ta.selectionStart;
+  ta.value = ta.value.substring(0, s) + `\n<ul>\n  <li>Pehla point</li>\n  <li>Doosra point</li>\n  <li>Teesra point</li>\n</ul>\n` + ta.value.substring(s);
+  ta.focus();
+}
+function insertAffBox() {
+  const tag = localStorage.getItem('tsd_aff_tag') || 'YOURTAG-21';
+  const ta = document.getElementById('f-body');
+  const s = ta.selectionStart;
+  const ins = `
+<div class="affiliate-box">
+  <h4>✦ Shop My Picks</h4>
+  <p>Ye products maine personally use kiye hain.</p>
+  <div class="affiliate-box-products">
+    <a class="aff-product" href="https://www.amazon.in/s?k=PRODUCT+NAME+HERE&tag=${tag}" target="_blank" rel="noopener">
+      <div class="aff-product-icon">🛍️</div>
+      <div class="aff-product-info">
+        <div class="aff-product-name">Product Ka Naam Yahan</div>
+        <div class="aff-product-price">₹XXX <span class="aff-product-badge">My Pick</span></div>
+      </div>
+      <button class="aff-product-buy">Shop on Amazon →</button>
+    </a>
+  </div>
+</div>`;
+  ta.value = ta.value.substring(0, s) + ins + ta.value.substring(s);
+  ta.focus();
+  toast('Affiliate box insert ho gaya! Product name aur price edit karo.', 'gold');
+}
+
+// ════════ PASSWORD ════════
+function changePassword() {
+  const cfg = getConfig();
+  const cur = document.getElementById('pw-current').value;
+  const nw = document.getElementById('pw-new').value;
+  const conf = document.getElementById('pw-confirm').value;
+  if (cur !== cfg.password) { toast('Current password galat hai!', 'red'); return; }
+  if (nw.length < 6) { toast('Password 6+ characters ka hona chahiye!', 'red'); return; }
+  if (nw !== conf) { toast('Passwords match nahi kar rahe!', 'red'); return; }
+  cfg.password = nw;
+  saveConfig(cfg);
+  document.getElementById('pw-current').value = '';
+  document.getElementById('pw-new').value = '';
+  document.getElementById('pw-confirm').value = '';
+  toast('✓ Password update ho gaya!', 'green');
+}
+
+// ════════ TOAST ════════
+function toast(msg, type = 'gold') {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className = 'toast t-' + type + ' show';
+  clearTimeout(t._tm);
+  t._tm = setTimeout(() => t.classList.remove('show'), 4000);
+}
+</script>
+</body>
+</html>
